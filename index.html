@@ -3,197 +3,248 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MycoTrack — Monitor Jamur Kuping</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<title>MycoTrack — Jamur Kuping</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root {
-  --bg: #0a0b0d;
-  --s1: #1a1b22;
-  --s2: #22242d;
-  --s3: #2a2d38;
-  --border: rgba(255,255,255,0.10);
-  --border2: rgba(255,255,255,0.18);
-  --p: #c4b5fd;
-  --p2: #7c3aed;
-  --p-glow: rgba(196,181,253,0.25);
-  --g: #34d399;
-  --g2: #059669;
-  --a: #fbbf24;
-  --r: #f87171;
-  --text: #f0ecff;
-  --muted: #9490a8;
-  --muted2: #bcb8d0;
+:root{
+  --bg:#f2ede4;--white:#faf7f2;--ink:#1c1208;--ink2:#3a2e1a;
+  --muted:#8a7a60;--muted2:#b8a888;--border:#ddd5c0;--border2:#c8ba9a;
+  --gold:#b8860b;--gold-light:#f5ead0;
+  --green:#2d5a3d;--green-light:#e0eed8;
+  --red:#8b2020;--red-light:#faeaea;
+  --blue:#1a3d5c;--blue-light:#dceaf5;
+  --amber:#a0620a;--amber-light:#fdf0d0;
+  --sw:250px;
+  --font-display:'Playfair Display',serif;
+  --font-body:'Libre Baskerville',serif;
+  --font-mono:'Courier Prime',monospace;
+  --font-title:'Bebas Neue',cursive;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-body);
+  min-height:100vh;
+  overflow-x:hidden;
+  font-size:14px;
+  line-height:1.6;
+}
 
-/* BG */
-body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 70% 20%, rgba(124,58,237,0.06) 0%, transparent 60%),radial-gradient(ellipse 40% 40% at 20% 80%, rgba(52,211,153,0.04) 0%, transparent 60%);pointer-events:none;z-index:0;}
+/* RETRO TEXTURE */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%23f2ede4'/%3E%3Crect width='1' height='1' fill='%23e8e0d0' opacity='0.4'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:0.6;
+}
 
 /* SIDEBAR */
-.sidebar{position:fixed;left:0;top:0;bottom:0;width:230px;background:#1e1f2e;border-right:2px solid rgba(196,181,253,0.15);z-index:50;display:flex;flex-direction:column;padding:28px 0;box-shadow:4px 0 24px rgba(0,0,0,0.4);}
-.logo{padding:0 24px 28px;border-bottom:1px solid rgba(196,181,253,0.15);margin-bottom:20px;}
-.logo-mark{font-family:'Instrument Serif',serif;font-size:26px;color:#c4b5fd;font-style:italic;text-shadow:0 0 20px rgba(196,181,253,0.4);}
-.logo-sub{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;color:#9490a8;margin-top:4px;}
-.nav-section-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#6b6890;padding:0 24px;margin-bottom:8px;margin-top:8px;}
-.nav-item{display:flex;align-items:center;gap:14px;padding:13px 20px 13px 22px;font-size:14px;font-weight:700;color:#bcb8d0;cursor:pointer;transition:all 0.2s;border-left:3px solid transparent;margin-bottom:3px;border-radius:0 10px 10px 0;margin-right:12px;}
-.nav-item:hover{color:#f0ecff;background:rgba(196,181,253,0.08);border-left-color:rgba(196,181,253,0.3);}
-.nav-item.active{color:#c4b5fd;border-left-color:#c4b5fd;background:rgba(196,181,253,0.12);text-shadow:0 0 12px rgba(196,181,253,0.3);}
-.nav-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0;}
-.nav-label{font-size:13px;}
-.nav-spacer{flex:1;}
-.sidebar-footer{padding:16px 24px;border-top:1px solid rgba(196,181,253,0.1);}
-.sf-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:#9490a8;line-height:1.8;}
-
-/* BOTTOM NAV (mobile) */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#1e1f2e;border-top:2px solid rgba(196,181,253,0.2);z-index:100;padding:8px 0 20px;}
-.bnav-inner{display:flex;justify-content:space-around;}
-.bnav-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;cursor:pointer;border-radius:12px;transition:all 0.2s;color:#9490a8;min-width:56px;}
-.bnav-item.active{color:#c4b5fd;}
-.bnav-item:active{background:rgba(196,181,253,0.1);}
-.bnav-icon{font-size:22px;}
-.bnav-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:#0f0a04;display:flex;flex-direction:column;z-index:50;border-right:3px solid var(--gold);}
+.logo{padding:32px 24px 24px;border-bottom:2px solid rgba(184,134,11,0.3);}
+.logo-mark{font-family:var(--font-title);font-size:26px;letter-spacing:3px;color:#f5ead0;display:flex;align-items:center;gap:10px;text-transform:uppercase;}
+.logo-dot{width:8px;height:8px;background:var(--gold);border-radius:50%;flex-shrink:0;box-shadow:0 0 8px rgba(184,134,11,0.6);}
+.logo-sub{font-family:var(--font-mono);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(245,234,208,0.3);margin-top:6px;padding-left:18px;}
+.nav-group{padding:16px 0 0;flex:1;overflow-y:auto;}
+.nav-sect{font-family:var(--font-mono);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(184,134,11,0.45);padding:0 24px;margin:14px 0 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 24px;font-family:var(--font-body);font-size:13px;font-weight:700;color:rgba(245,234,208,0.4);cursor:pointer;transition:all 0.18s;position:relative;}
+.nav-item:hover{color:rgba(245,234,208,0.85);background:rgba(184,134,11,0.06);}
+.nav-item.active{color:#f5ead0;background:rgba(184,134,11,0.1);}
+.nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);box-shadow:0 0 8px rgba(184,134,11,0.5);}
+.nav-badge{margin-left:auto;font-family:var(--font-mono);font-size:10px;background:rgba(184,134,11,0.15);color:var(--gold);padding:2px 7px;border-radius:4px;border:1px solid rgba(184,134,11,0.2);}
+.nav-badge.red{background:rgba(139,32,32,0.15);color:#e88080;border-color:rgba(139,32,32,0.2);}
+.nav-badge.green{background:rgba(45,90,61,0.2);color:#7fbf8f;border-color:rgba(45,90,61,0.2);}
+.sf{padding:16px 24px 24px;border-top:1px solid rgba(184,134,11,0.2);}
+.sf-date{font-family:var(--font-mono);font-size:10px;color:rgba(245,234,208,0.2);line-height:1.9;letter-spacing:1px;}
 
 /* MAIN */
-.main{margin-left:230px;min-height:100vh;position:relative;z-index:1;}
-.page{display:none;padding:40px 48px;}
+.main{margin-left:var(--sw);min-height:100vh;position:relative;z-index:1;}
+.page{display:none;padding:44px 48px;}
 .page.active{display:block;}
 
 /* TOPBAR */
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;}
-.page-title{font-size:28px;font-weight:800;color:var(--text);}
-.page-title span{color:var(--p);font-family:'Instrument Serif',serif;font-style:italic;}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;}
-.btn-primary{background:var(--p2);color:white;}
-.btn-primary:hover{background:var(--p);transform:translateY(-1px);box-shadow:0 8px 20px var(--p-glow);}
-.btn-ghost{background:var(--s2);color:var(--muted2);border:1px solid var(--border);}
-.btn-ghost:hover{color:var(--text);border-color:var(--border2);}
-.btn-danger{background:rgba(248,113,113,0.1);color:var(--r);border:1px solid rgba(248,113,113,0.2);}
-.btn-danger:hover{background:rgba(248,113,113,0.2);}
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px;padding-bottom:24px;border-bottom:2px solid var(--border);}
+.page-ey{font-family:var(--font-mono);font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.page-title{font-family:var(--font-title);font-size:42px;letter-spacing:3px;color:var(--ink);line-height:1;text-transform:uppercase;}
+.page-title em{color:var(--gold);font-style:normal;}
+.btn-row{display:flex;gap:10px;align-items:center;}
 
-/* CARDS */
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
-.kpi{background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:24px;position:relative;overflow:hidden;transition:border-color 0.2s;}
-.kpi:hover{border-color:var(--border2);}
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-.kpi:nth-child(1)::before{background:var(--p);}
-.kpi:nth-child(2)::before{background:var(--g);}
-.kpi:nth-child(3)::before{background:var(--a);}
-.kpi:nth-child(4)::before{background:#60a5fa;}
-.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;}
-.kpi-val{font-family:'Instrument Serif',serif;font-size:40px;color:var(--text);line-height:1;}
-.kpi-unit{font-size:16px;color:var(--muted2);}
-.kpi-delta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--g);margin-top:8px;}
-.kpi-delta.down{color:var(--r);}
-.kpi-icon{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:32px;opacity:0.15;}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:4px;font-family:var(--font-mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;cursor:pointer;border:none;transition:all 0.18s;}
+.btn-primary{background:var(--ink);color:#f5ead0;border:2px solid var(--ink);}
+.btn-primary:hover{background:#0f0a04;transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,0.25);}
+.btn-outline{background:transparent;color:var(--ink2);border:2px solid var(--border2);}
+.btn-outline:hover{background:var(--white);border-color:var(--ink);}
+.btn-danger{background:var(--red-light);color:var(--red);border:1px solid rgba(139,32,32,0.2);}
+.btn-danger:hover{background:#f5d5d5;}
+.btn-gold{background:var(--gold-light);color:var(--gold);border:1px solid rgba(184,134,11,0.25);}
+.btn-gold:hover{background:#eedd99;}
+.btn-sm{padding:5px 12px;font-size:10px;border-radius:3px;}
+
+/* KPI */
+.kpi-row{display:grid;gap:1px;background:var(--border2);border:2px solid var(--border2);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+.kpi-4{grid-template-columns:repeat(4,1fr);}
+.kpi-3{grid-template-columns:repeat(3,1fr);}
+.kpi-2{grid-template-columns:repeat(2,1fr);}
+.kpi{background:var(--white);padding:24px 20px;transition:background 0.18s;position:relative;}
+.kpi:hover{background:#f8f3e8;}
+.kpi::after{content:'';position:absolute;bottom:0;left:20px;right:20px;height:1px;background:var(--border);}
+.kpi-icon{font-size:20px;margin-bottom:10px;display:block;}
+.kpi-label{font-family:var(--font-mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.kpi-val{font-family:var(--font-title);font-size:38px;letter-spacing:2px;color:var(--ink);line-height:1;margin-bottom:5px;}
+.kpi-unit{font-size:18px;color:var(--muted);font-family:var(--font-mono);}
+.kpi-delta{font-family:var(--font-mono);font-size:10px;color:var(--green);letter-spacing:1px;}
+.kpi-delta.n{color:var(--muted);}
+.kpi-delta.a{color:var(--amber);}
+.kpi-delta.r{color:var(--red);}
 
 /* GRID */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:20px;}
-.card{background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:28px;}
-.card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
-.card-title .ct-badge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);background:var(--s3);padding:3px 8px;border-radius:6px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px;}
 
-/* BAGLOG TABLE */
+/* CARD */
+.card{background:var(--white);border:2px solid var(--border);border-radius:8px;padding:24px;position:relative;}
+.card::before{content:'';position:absolute;top:4px;left:4px;right:-4px;bottom:-4px;background:var(--border);border-radius:8px;z-index:-1;}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.card-title{font-family:var(--font-display);font-size:18px;font-weight:700;font-style:italic;color:var(--ink);}
+.card-sub{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-top:2px;}
+
+/* TABLE */
 .tbl{width:100%;border-collapse:collapse;}
-.tbl th{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
-.tbl td{padding:14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+.tbl th{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px;text-align:left;border-bottom:2px solid var(--border2);}
+.tbl td{padding:13px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;color:var(--ink2);font-family:var(--font-body);}
 .tbl tr:last-child td{border-bottom:none;}
-.tbl tr:hover td{background:rgba(255,255,255,0.02);}
-.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;}
-.badge-green{background:rgba(52,211,153,0.1);color:var(--g);}
-.badge-amber{background:rgba(251,191,36,0.1);color:var(--a);}
-.badge-red{background:rgba(248,113,113,0.1);color:var(--r);}
-.badge-blue{background:rgba(96,165,250,0.1);color:#60a5fa;}
-.badge-gray{background:var(--s3);color:var(--muted);}
+.tbl tr:hover td{background:#f8f3e8;}
+.tbl td strong{color:var(--ink);font-weight:700;}
 
-/* PROGRESS BAR */
-.prog-wrap{margin-bottom:20px;}
-.prog-hdr{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;}
-.prog-name{font-weight:600;color:var(--text);}
-.prog-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--p);}
-.prog-track{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;}
-.prog-fill{height:100%;border-radius:3px;transition:width 1.5s cubic-bezier(.4,0,.2,1);}
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:3px;font-family:var(--font-mono);font-size:10px;letter-spacing:1px;border:1px solid transparent;}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;}
+.badge-green{background:var(--green-light);color:var(--green);border-color:rgba(45,90,61,0.2);}
+.badge-green::before{background:var(--green);}
+.badge-amber{background:var(--amber-light);color:var(--amber);border-color:rgba(160,98,10,0.2);}
+.badge-amber::before{background:var(--amber);}
+.badge-red{background:var(--red-light);color:var(--red);border-color:rgba(139,32,32,0.2);}
+.badge-red::before{background:var(--red);}
+.badge-blue{background:var(--blue-light);color:var(--blue);border-color:rgba(26,61,92,0.2);}
+.badge-blue::before{background:var(--blue);}
+.badge-gray{background:var(--bg);color:var(--muted);border-color:var(--border);}
+.badge-gray::before{background:var(--muted2);}
+.badge-gold{background:var(--gold-light);color:var(--gold);border-color:rgba(184,134,11,0.25);}
+.badge-gold::before{background:var(--gold);}
 
-/* FORM */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
-.modal-overlay.open{display:flex;}
-.modal{background:var(--s1);border:1px solid var(--border2);border-radius:20px;padding:36px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;}
-.modal-title{font-size:20px;font-weight:800;margin-bottom:28px;color:var(--text);}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-.form-row.single{grid-template-columns:1fr;}
-.form-group{display:flex;flex-direction:column;gap:8px;}
-.form-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
-.form-input,.form-select,.form-textarea{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Syne',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;width:100%;}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--p);}
-.form-select option{background:var(--s1);}
-.form-textarea{resize:vertical;min-height:80px;}
-.form-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:28px;}
-
-/* PANEN LOG */
-.log-item{display:flex;gap:16px;align-items:flex-start;padding:16px 0;border-bottom:1px solid var(--border);}
+/* LOG */
+.log-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);}
 .log-item:last-child{border-bottom:none;}
-.log-dot{width:10px;height:10px;border-radius:50%;background:var(--p);margin-top:4px;flex-shrink:0;box-shadow:0 0 8px var(--p-glow);}
-.log-dot.harvest{background:var(--g);}
-.log-dot.note{background:var(--a);}
-.log-dot.alert{background:var(--r);}
-.log-content{flex:1;}
-.log-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.log-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
-.log-amount{font-family:'Instrument Serif',serif;font-size:20px;color:var(--g);margin-left:auto;flex-shrink:0;}
+.log-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.log-dot.g{background:var(--green);}
+.log-dot.a{background:var(--amber);}
+.log-dot.r{background:var(--red);}
+.log-dot.b{background:var(--blue);}
+.log-dot.gold{background:var(--gold);}
+.log-title{font-family:var(--font-body);font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.log-meta{font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:0.5px;}
+.log-right{margin-left:auto;text-align:right;flex-shrink:0;}
 
-/* KONDISI */
-.cond-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.cond-item{background:var(--s3);border-radius:12px;padding:16px;text-align:center;}
-.cond-icon{font-size:24px;margin-bottom:8px;}
-.cond-val{font-family:'Instrument Serif',serif;font-size:24px;color:var(--text);display:block;}
-.cond-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-top:4px;display:block;}
-.cond-status{font-size:11px;margin-top:4px;}
-.cond-ok{color:var(--g);}
-.cond-warn{color:var(--a);}
-.cond-bad{color:var(--r);}
+/* STAT ROW */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
+.stat-row:last-child{border-bottom:none;}
+.stat-key{font-family:var(--font-body);font-size:13px;color:var(--muted);}
+.stat-val{font-family:var(--font-title);font-size:24px;letter-spacing:1px;color:var(--ink);}
+.stat-val.g{color:var(--green);}
+.stat-val.gold{color:var(--gold);}
+.stat-val.r{color:var(--red);}
 
-/* INPUT KONDISI INLINE */
-.cond-input-row{display:flex;gap:10px;margin-top:16px;align-items:center;}
-.cond-input-row .form-input{flex:1;}
+/* PINHEAD CARD */
+.ph-card{background:var(--white);border:2px solid var(--border);border-radius:8px;padding:20px;transition:all 0.2s;border-left:4px solid var(--blue);position:relative;}
+.ph-card::before{content:'';position:absolute;top:3px;left:3px;right:-3px;bottom:-3px;background:var(--border);border-radius:8px;z-index:-1;}
+.ph-card:hover{transform:translateY(-2px);}
+.ph-card.growing{border-left-color:var(--amber);}
+.ph-card.mature{border-left-color:var(--green);}
+.ph-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.ph-name{font-family:var(--font-display);font-size:18px;font-weight:700;font-style:italic;color:var(--ink);}
+.ph-batch{font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:1px;}
+.ph-days{font-family:var(--font-title);font-size:42px;letter-spacing:2px;color:var(--gold);line-height:1;}
+.ph-days-lbl{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--muted);text-align:right;text-transform:uppercase;}
+.ph-row{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border);font-size:12px;}
+.ph-key{font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.ph-val{font-family:var(--font-body);font-weight:700;color:var(--ink);}
 
-/* ALERT */
-.alert-banner{display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:12px;padding:14px 18px;margin-bottom:24px;font-size:13px;color:var(--r);display:flex;align-items:center;gap:10px;}
+/* FLOW INDICATOR */
+.flow-bar{display:flex;align-items:center;gap:0;margin-bottom:28px;background:var(--white);border:2px solid var(--border2);border-radius:8px;overflow:hidden;position:relative;}
+.flow-step{flex:1;padding:14px 12px;text-align:center;position:relative;transition:background 0.2s;border-right:1px solid var(--border);}
+.flow-step:last-child{border-right:none;}
+.flow-step:not(:last-child)::after{content:'▶';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:10px;z-index:2;}
+.flow-step.active-flow{background:var(--gold-light);}
+.flow-step.done-flow{background:var(--green-light);}
+.flow-num{font-family:var(--font-mono);font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;}
+.flow-name{font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--ink);}
+.flow-count{font-family:var(--font-title);font-size:22px;letter-spacing:2px;color:var(--gold);margin-top:2px;}
+.flow-count.g{color:var(--green);}
+.flow-count.b{color:var(--blue);}
 
-/* EMPTY STATE */
-.empty{text-align:center;padding:60px 20px;color:var(--muted);}
-.empty-icon{font-size:48px;margin-bottom:16px;opacity:0.4;}
-.empty-text{font-size:14px;line-height:1.7;}
+/* ALERT CARD */
+.alert-card{border-radius:6px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;font-family:var(--font-body);font-size:13px;border-left:4px solid;}
+.alert-gold{background:var(--gold-light);border-color:var(--gold);color:#5a3e00;}
+.alert-green{background:var(--green-light);border-color:var(--green);color:#1a3d24;}
+.alert-blue{background:var(--blue-light);border-color:var(--blue);color:#0f2438;}
 
-/* CHART CANVAS */
-canvas{max-height:260px;}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,10,4,0.65);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:8px;padding:36px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:8px 8px 0 var(--border2);border:2px solid var(--border2);}
+.modal-title{font-family:var(--font-title);font-size:28px;letter-spacing:3px;color:var(--ink);margin-bottom:4px;text-transform:uppercase;}
+.modal-sub{font-family:var(--font-mono);font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:28px;text-transform:uppercase;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.fg.s{grid-template-columns:1fr;}
+.fgrp{display:flex;flex-direction:column;gap:7px;}
+.flbl{font-family:var(--font-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.finp,.fsel,.ftxt{background:var(--bg);border:2px solid var(--border2);border-radius:4px;padding:10px 13px;color:var(--ink);font-family:var(--font-body);font-size:13px;outline:none;transition:all 0.18s;width:100%;}
+.finp:focus,.fsel:focus,.ftxt:focus{border-color:var(--gold);background:var(--white);}
+.fsel option{background:var(--white);}
+.ftxt{resize:vertical;min-height:72px;}
+.fhint{font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:0.5px;}
+.fact{display:flex;gap:10px;justify-content:flex-end;margin-top:28px;padding-top:20px;border-top:1px solid var(--border);}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;}
+.empty-icon{font-size:32px;margin-bottom:12px;opacity:0.22;}
+.empty-text{font-size:13px;line-height:1.7;color:var(--muted);font-family:var(--font-body);}
+
+/* CHART */
+.chart-wrap{position:relative;height:200px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:#0f0a04;color:#f5ead0;padding:12px 18px;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;z-index:999;transform:translateY(60px);opacity:0;transition:all 0.3s;display:flex;align-items:center;gap:9px;box-shadow:4px 4px 0 var(--gold);border:1px solid var(--gold);}
+.toast::before{content:'✓';color:var(--gold);font-weight:700;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* BOTTOM NAV */
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:2px solid var(--border2);z-index:100;padding:6px 0 22px;}
+.bnav-inner{display:flex;justify-content:space-around;}
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 8px;cursor:pointer;color:var(--muted2);transition:color 0.18s;min-width:50px;}
+.bnav-item.active{color:var(--ink);}
+.bnav-icon{font-size:19px;}
+.bnav-label{font-family:var(--font-mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 
 /* RESPONSIVE */
 @media(max-width:900px){
-  .sidebar{display:none;}
-  .bottom-nav{display:block;}
-  .main{margin-left:0;}
-  .page{padding:20px 16px 100px;}
-  .kpi-row{grid-template-columns:1fr 1fr;}
-  .grid-2,.grid-3{grid-template-columns:1fr;}
-  .form-row{grid-template-columns:1fr;}
-  .cond-grid{grid-template-columns:1fr 1fr;}
+  .sidebar{display:none;}.bnav{display:block;}.main{margin-left:0;}
+  .page{padding:20px 16px 96px;}
+  .kpi-4,.kpi-3{grid-template-columns:1fr 1fr;}
+  .g2,.g3{grid-template-columns:1fr;}
+  .fg{grid-template-columns:1fr;}
   .topbar{flex-direction:column;align-items:flex-start;gap:12px;}
+  .flow-bar{flex-direction:column;border-radius:8px;}
+  .flow-step:not(:last-child)::after{content:'▼';right:auto;left:50%;top:auto;bottom:-8px;transform:translateX(-50%);}
 }
-
-/* TOAST */
-.toast{position:fixed;bottom:32px;right:32px;background:var(--s1);border:1px solid var(--g);color:var(--g);padding:14px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:999;transform:translateY(80px);opacity:0;transition:all 0.3s;display:flex;align-items:center;gap:8px;}
-.toast.show{transform:translateY(0);opacity:1;}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:6px;}
-::-webkit-scrollbar-track{background:var(--s1);}
-::-webkit-scrollbar-thumb{background:var(--s3);border-radius:3px;}
-
-/* CHART WRAPPER */
-.chart-wrap{position:relative;height:240px;}
 </style>
 </head>
 <body>
@@ -201,883 +252,742 @@ canvas{max-height:260px;}
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="logo">
-    <div class="logo-mark">🍄 MycoTrack</div>
-    <div class="logo-sub">MONITORING JAMUR KUPING</div>
+    <div class="logo-mark"><span class="logo-dot"></span> MycoTrack</div>
+    <div class="logo-sub">Monitoring Jamur Kuping</div>
   </div>
-  <div class="nav-section-label">Menu Utama</div>
-  <div class="nav-item active" onclick="showPage('dashboard')">
-    <span class="nav-icon">📊</span>
-    <span class="nav-label">Dashboard</span>
+  <div class="nav-group">
+    <div class="nav-sect">Utama</div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <span>◈</span> Dashboard
+    </div>
+    <div class="nav-sect">Produksi</div>
+    <div class="nav-item" onclick="showPage('baglog')">
+      <span>▤</span> Baglog
+      <span class="nav-badge green" id="nb-baglog">0</span>
+    </div>
+    <div class="nav-item" onclick="showPage('pinhead')">
+      <span>✦</span> Pinhead
+      <span class="nav-badge" id="nb-pinhead">0</span>
+    </div>
+    <div class="nav-item" onclick="showPage('panen')">
+      <span>◎</span> Panen
+      <span class="nav-badge green" id="nb-panen">0 kg</span>
+    </div>
+    <div class="nav-sect">Finansial</div>
+    <div class="nav-item" onclick="showPage('keuangan')">
+      <span>◇</span> Keuangan
+      <span class="nav-badge green" id="nb-profit">Rp 0</span>
+    </div>
   </div>
-  <div class="nav-item" onclick="showPage('baglog')">
-    <span class="nav-icon">🪵</span>
-    <span class="nav-label">Data Baglog</span>
-  </div>
-  <div class="nav-item" onclick="showPage('panen')">
-    <span class="nav-icon">🌾</span>
-    <span class="nav-label">Catat Panen</span>
-  </div>
-  <div class="nav-item" onclick="showPage('kondisi')">
-    <span class="nav-icon">🌡️</span>
-    <span class="nav-label">Kondisi Kumbung</span>
-  </div>
-  <div class="nav-item" onclick="showPage('keuangan')">
-    <span class="nav-icon">💰</span>
-    <span class="nav-label">Keuangan</span>
-  </div>
-  <div class="nav-spacer"></div>
-  <div class="sidebar-footer">
-    <div class="sf-date" id="sidebarDate"></div>
-  </div>
+  <div class="sf"><div class="sf-date" id="sidebarDate"></div></div>
 </aside>
 
-<!-- BOTTOM NAV (mobile) -->
-<nav class="bottom-nav">
+<!-- BOTTOM NAV -->
+<nav class="bnav">
   <div class="bnav-inner">
-    <div class="bnav-item active" onclick="showPage('dashboard')">
-      <span class="bnav-icon">📊</span>
-      <span class="bnav-label">Home</span>
-    </div>
-    <div class="bnav-item" onclick="showPage('baglog')">
-      <span class="bnav-icon">🪵</span>
-      <span class="bnav-label">Baglog</span>
-    </div>
-    <div class="bnav-item" onclick="showPage('panen')">
-      <span class="bnav-icon">🌾</span>
-      <span class="bnav-label">Panen</span>
-    </div>
-    <div class="bnav-item" onclick="showPage('kondisi')">
-      <span class="bnav-icon">🌡️</span>
-      <span class="bnav-label">Kondisi</span>
-    </div>
-    <div class="bnav-item" onclick="showPage('keuangan')">
-      <span class="bnav-icon">💰</span>
-      <span class="bnav-label">Uang</span>
-    </div>
+    <div class="bnav-item active" onclick="showPage('dashboard')"><span class="bnav-icon">◈</span><span class="bnav-label">Home</span></div>
+    <div class="bnav-item" onclick="showPage('baglog')"><span class="bnav-icon">▤</span><span class="bnav-label">Baglog</span></div>
+    <div class="bnav-item" onclick="showPage('pinhead')"><span class="bnav-icon">✦</span><span class="bnav-label">Pinhead</span></div>
+    <div class="bnav-item" onclick="showPage('panen')"><span class="bnav-icon">◎</span><span class="bnav-label">Panen</span></div>
+    <div class="bnav-item" onclick="showPage('keuangan')"><span class="bnav-icon">◇</span><span class="bnav-label">Uang</span></div>
   </div>
 </nav>
 
-<!-- MAIN -->
 <main class="main">
 
-  <!-- DASHBOARD -->
-  <div class="page active" id="page-dashboard">
-    <div class="topbar">
-      <div>
-        <div class="page-title">Dashboard <span>Utama</span></div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;" id="dashDate"></div>
-      </div>
+<!-- ══ DASHBOARD ══ -->
+<div class="page active" id="page-dashboard">
+  <div class="topbar">
+    <div><div class="page-ey">Ringkasan</div><div class="page-title">Dashboard <em>Utama</em></div></div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="showPage('baglog')">+ Baglog</button>
       <button class="btn btn-primary" onclick="openModal('modalPanen')">+ Catat Panen</button>
     </div>
+  </div>
 
-    <div class="kpi-row">
-      <div class="kpi">
-        <div class="kpi-icon">🪵</div>
-        <div class="kpi-label">Baglog Aktif</div>
-        <div class="kpi-val" id="kpiBaglog">0 <span class="kpi-unit">buah</span></div>
-        <div class="kpi-delta" id="kpiBaglogDelta"></div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-icon">🌾</div>
-        <div class="kpi-label">Total Panen</div>
-        <div class="kpi-val" id="kpiPanen">0 <span class="kpi-unit">kg</span></div>
-        <div class="kpi-delta" id="kpiPanenDelta"></div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-icon">💰</div>
-        <div class="kpi-label">Pendapatan</div>
-        <div class="kpi-val" id="kpiPendapatan">Rp 0</div>
-        <div class="kpi-delta" id="kpiPendapatanDelta"></div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-icon">📅</div>
-        <div class="kpi-label">Panen Terakhir</div>
-        <div class="kpi-val" style="font-size:22px;" id="kpiLastHarvest">—</div>
-        <div class="kpi-delta" id="kpiLastHarvestSub"></div>
-      </div>
+  <!-- ALUR PRODUKSI -->
+  <div class="flow-bar" id="flowBar">
+    <div class="flow-step" id="fs-baglog">
+      <div class="flow-num">01 — BAGLOG</div>
+      <div class="flow-name">Inokulasi</div>
+      <div class="flow-count b" id="fd-baglog">0 buah</div>
     </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Grafik Panen <span class="ct-badge">12 BULAN TERAKHIR</span></div>
-        <div class="chart-wrap"><canvas id="chartPanen"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Kondisi Kumbung <span class="ct-badge">TERKINI</span></div>
-        <div class="cond-grid" id="condDisplay">
-          <div class="cond-item"><div class="cond-icon">🌡️</div><span class="cond-val" id="cd-suhu">—</span><span class="cond-label">Suhu (°C)</span><div class="cond-status" id="cd-suhu-s"></div></div>
-          <div class="cond-item"><div class="cond-icon">💧</div><span class="cond-val" id="cd-lembab">—</span><span class="cond-label">Kelembaban (%)</span><div class="cond-status" id="cd-lembab-s"></div></div>
-          <div class="cond-item"><div class="cond-icon">☁️</div><span class="cond-val" id="cd-sirkulasi">—</span><span class="cond-label">Sirkulasi</span><div class="cond-status" id="cd-sir-s"></div></div>
-        </div>
-        <div style="margin-top:16px;">
-          <button class="btn btn-ghost" style="width:100%;" onclick="showPage('kondisi')">📝 Update Kondisi</button>
-        </div>
-      </div>
+    <div class="flow-step" id="fs-pinhead">
+      <div class="flow-num">02 — PINHEAD</div>
+      <div class="flow-name">Tumbuh</div>
+      <div class="flow-count" id="fd-pinhead">0 log</div>
     </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Log Aktivitas <span class="ct-badge">TERBARU</span></div>
-        <div id="activityLog">
-          <div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Belum ada aktivitas.<br>Mulai catat panen pertama!</div></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Pendapatan Bulanan <span class="ct-badge">GRAFIK</span></div>
-        <div class="chart-wrap"><canvas id="chartRevenue"></canvas></div>
-      </div>
+    <div class="flow-step" id="fs-panen">
+      <div class="flow-num">03 — PANEN</div>
+      <div class="flow-name">Produksi</div>
+      <div class="flow-count g" id="fd-panen">0 kg</div>
+    </div>
+    <div class="flow-step" id="fs-jual">
+      <div class="flow-num">04 — JUAL</div>
+      <div class="flow-name">Pendapatan</div>
+      <div class="flow-count g" id="fd-jual">Rp 0</div>
     </div>
   </div>
 
-  <!-- BAGLOG -->
-  <div class="page" id="page-baglog">
-    <div class="topbar">
-      <div class="page-title">Data <span>Baglog</span></div>
-      <button class="btn btn-primary" onclick="openModal('modalBaglog')">+ Tambah Baglog</button>
+  <!-- ALERT SECTION -->
+  <div id="alertSection"></div>
+
+  <div class="kpi-row kpi-4">
+    <div class="kpi"><span class="kpi-icon">🪵</span><div class="kpi-label">Baglog Aktif</div><div class="kpi-val" id="kpi-baglog">0 <span class="kpi-unit">buah</span></div><div class="kpi-delta n" id="kpi-baglog-s">—</div></div>
+    <div class="kpi"><span class="kpi-icon">✦</span><div class="kpi-label">Pinhead Aktif</div><div class="kpi-val" id="kpi-pinhead">0 <span class="kpi-unit">log</span></div><div class="kpi-delta n" id="kpi-pinhead-s">—</div></div>
+    <div class="kpi"><span class="kpi-icon">🌾</span><div class="kpi-label">Total Panen</div><div class="kpi-val" id="kpi-panen">0 <span class="kpi-unit">kg</span></div><div class="kpi-delta n" id="kpi-panen-s">—</div></div>
+    <div class="kpi"><span class="kpi-icon">💰</span><div class="kpi-label">Laba Bersih</div><div class="kpi-val" style="font-size:22px;" id="kpi-profit">Rp 0</div><div class="kpi-delta n" id="kpi-profit-s">—</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">Grafik Panen</div><div class="card-sub">Kg per sesi</div></div></div>
+      <div class="chart-wrap"><canvas id="chartPanen"></canvas></div>
     </div>
     <div class="card">
-      <table class="tbl">
-        <thead>
-          <tr>
-            <th>ID / Nama</th>
-            <th>Tgl Inokulasi</th>
-            <th>Jumlah</th>
-            <th>Status</th>
-            <th>Catatan</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="baglogTableBody">
-          <tr><td colspan="6"><div class="empty"><div class="empty-icon">🪵</div><div class="empty-text">Belum ada data baglog.<br>Klik "+ Tambah Baglog" untuk mulai.</div></div></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="grid-3" style="margin-top:20px;">
-      <div class="card" style="text-align:center;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;">TOTAL BAGLOG</div>
-        <div style="font-family:'Instrument Serif',serif;font-size:48px;color:var(--p);" id="statTotal">0</div>
-      </div>
-      <div class="card" style="text-align:center;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;">AKTIF / BERPRODUKSI</div>
-        <div style="font-family:'Instrument Serif',serif;font-size:48px;color:var(--g);" id="statAktif">0</div>
-      </div>
-      <div class="card" style="text-align:center;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;">KONTAMINASI/HABIS</div>
-        <div style="font-family:'Instrument Serif',serif;font-size:48px;color:var(--r);" id="statMati">0</div>
-      </div>
+      <div class="card-head"><div><div class="card-title">Aktivitas Terbaru</div><div class="card-sub">Semua alur</div></div></div>
+      <div id="actLog"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Belum ada aktivitas.</div></div></div>
     </div>
   </div>
 
-  <!-- PANEN -->
-  <div class="page" id="page-panen">
-    <div class="topbar">
-      <div class="page-title">Catat <span>Panen</span></div>
-      <button class="btn btn-primary" onclick="openModal('modalPanen')">+ Tambah Panen</button>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Riwayat Panen</div>
-        <div id="panenList">
-          <div class="empty"><div class="empty-icon">🌾</div><div class="empty-text">Belum ada catatan panen.</div></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Statistik Panen</div>
-        <div style="display:flex;flex-direction:column;gap:16px;" id="panenStats">
-          <div style="display:flex;justify-content:space-between;padding:14px;background:var(--s3);border-radius:12px;">
-            <span style="font-size:13px;color:var(--muted2);">Total Panen (kg)</span>
-            <span style="font-family:'Instrument Serif',serif;font-size:24px;color:var(--g);" id="ps-total">0</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:14px;background:var(--s3);border-radius:12px;">
-            <span style="font-size:13px;color:var(--muted2);">Rata-rata per Panen (kg)</span>
-            <span style="font-family:'Instrument Serif',serif;font-size:24px;color:var(--p);" id="ps-avg">0</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:14px;background:var(--s3);border-radius:12px;">
-            <span style="font-size:13px;color:var(--muted2);">Panen Terbanyak (kg)</span>
-            <span style="font-family:'Instrument Serif',serif;font-size:24px;color:var(--a);" id="ps-max">0</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:14px;background:var(--s3);border-radius:12px;">
-            <span style="font-size:13px;color:var(--muted2);">Jumlah Sesi Panen</span>
-            <span style="font-family:'Instrument Serif',serif;font-size:24px;color:var(--text);" id="ps-count">0</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- KONDISI -->
-  <div class="page" id="page-kondisi">
-    <div class="topbar">
-      <div class="page-title">Kondisi <span>Kumbung</span></div>
-      <button class="btn btn-primary" onclick="openModal('modalKondisi')">+ Update Kondisi</button>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Kondisi Saat Ini</div>
-        <div class="cond-grid" style="margin-bottom:16px;">
-          <div class="cond-item"><div class="cond-icon">🌡️</div><span class="cond-val" id="k-suhu">—</span><span class="cond-label">Suhu (°C)</span><div class="cond-status" id="k-suhu-s"></div></div>
-          <div class="cond-item"><div class="cond-icon">💧</div><span class="cond-val" id="k-lembab">—</span><span class="cond-label">Kelembaban (%)</span><div class="cond-status" id="k-lembab-s"></div></div>
-          <div class="cond-item"><div class="cond-icon">💨</div><span class="cond-val" id="k-sir">—</span><span class="cond-label">Sirkulasi</span><div class="cond-status" id="k-sir-s"></div></div>
-        </div>
-        <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;" id="k-last-update">Belum pernah diupdate</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Panduan Kondisi Ideal</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--s3);border-radius:10px;">
-            <span style="font-size:13px;">🌡️ Suhu Optimal</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--g);">22°C – 28°C</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--s3);border-radius:10px;">
-            <span style="font-size:13px;">💧 Kelembaban</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--g);">80% – 90%</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--s3);border-radius:10px;">
-            <span style="font-size:13px;">☁️ Sirkulasi Udara</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--g);">Baik – Sangat Baik</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--s3);border-radius:10px;">
-            <span style="font-size:13px;">🚿 Frekuensi Siram</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--g);">2× sehari</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
+  <div class="g2">
     <div class="card">
-      <div class="card-title">Riwayat Kondisi</div>
-      <div id="kondisiLog">
-        <div class="empty"><div class="empty-icon">🌡️</div><div class="empty-text">Belum ada catatan kondisi.</div></div>
-      </div>
+      <div class="card-head"><div><div class="card-title">Pinhead Perlu Perhatian</div><div class="card-sub">Siap panen & hampir siap</div></div></div>
+      <div id="dashPinhead"><div class="empty"><div class="empty-icon">✦</div><div class="empty-text">Belum ada pinhead.</div></div></div>
     </div>
-  </div>
-
-  <!-- KEUANGAN -->
-  <div class="page" id="page-keuangan">
-    <div class="topbar">
-      <div class="page-title">Catatan <span>Keuangan</span></div>
-      <button class="btn btn-primary" onclick="openModal('modalBiaya')">+ Tambah Pengeluaran</button>
-    </div>
-
-    <div class="kpi-row">
-      <div class="kpi">
-        <div class="kpi-icon">💵</div>
-        <div class="kpi-label">Total Pendapatan</div>
-        <div class="kpi-val" id="fin-income" style="font-size:28px;">Rp 0</div>
-        <div class="kpi-delta">Dari seluruh panen</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-icon">📤</div>
-        <div class="kpi-label">Total Pengeluaran</div>
-        <div class="kpi-val" id="fin-expense" style="font-size:28px;">Rp 0</div>
-        <div class="kpi-delta down" id="fin-expense-lbl">Semua biaya operasional</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-icon">📈</div>
-        <div class="kpi-label">Laba Bersih</div>
-        <div class="kpi-val" id="fin-profit" style="font-size:28px;">Rp 0</div>
-        <div class="kpi-delta" id="fin-margin">Margin: 0%</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-icon">⚖️</div>
-        <div class="kpi-label">Harga Jual Rata-rata</div>
-        <div class="kpi-val" id="fin-price" style="font-size:28px;">Rp 0</div>
-        <div class="kpi-delta">Per kg</div>
-      </div>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Riwayat Pengeluaran</div>
-        <div id="biayaList">
-          <div class="empty"><div class="empty-icon">💸</div><div class="empty-text">Belum ada catatan pengeluaran.</div></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Grafik Laba Rugi <span class="ct-badge">PER PANEN</span></div>
-        <div class="chart-wrap"><canvas id="chartProfit"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-</main>
-
-<!-- MODALS -->
-
-<!-- Modal Panen -->
-<div class="modal-overlay" id="modalPanen">
-  <div class="modal">
-    <div class="modal-title">🌾 Catat Hasil Panen</div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Tanggal Panen</label>
-        <input type="date" class="form-input" id="f-panen-tgl">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Berat Panen (kg)</label>
-        <input type="number" class="form-input" id="f-panen-berat" placeholder="0.0" step="0.1" min="0">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Harga Jual (Rp/kg)</label>
-        <input type="number" class="form-input" id="f-panen-harga" placeholder="22000">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Pembeli / Saluran</label>
-        <select class="form-select" id="f-panen-pembeli">
-          <option value="Pasar">Pasar Tradisional</option>
-          <option value="Warung">Warung Makan</option>
-          <option value="Restoran">Restoran</option>
-          <option value="WhatsApp">WhatsApp / Tetangga</option>
-          <option value="Online">Online (Shopee/Tokped)</option>
-          <option value="Lainnya">Lainnya</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row single">
-      <div class="form-group">
-        <label class="form-label">Catatan</label>
-        <textarea class="form-textarea" id="f-panen-catatan" placeholder="Kondisi panen, kualitas, dll..."></textarea>
-      </div>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modalPanen')">Batal</button>
-      <button class="btn btn-primary" onclick="savePanen()">Simpan Panen</button>
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">Pendapatan vs Pengeluaran</div><div class="card-sub">Perbandingan</div></div></div>
+      <div class="chart-wrap"><canvas id="chartProfit"></canvas></div>
     </div>
   </div>
 </div>
 
-<!-- Modal Baglog -->
-<div class="modal-overlay" id="modalBaglog">
-  <div class="modal">
-    <div class="modal-title">🪵 Tambah Data Baglog</div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Nama / Kode Batch</label>
-        <input type="text" class="form-input" id="f-bl-nama" placeholder="cth: Batch A, BL-001">
+<!-- ══ BAGLOG ══ -->
+<div class="page" id="page-baglog">
+  <div class="topbar">
+    <div><div class="page-ey">Inventaris</div><div class="page-title">Data <em>Baglog</em></div></div>
+    <button class="btn btn-primary" onclick="openModal('modalBaglog')">+ Tambah Baglog</button>
+  </div>
+
+  <div class="kpi-row kpi-3" style="margin-bottom:24px;">
+    <div class="kpi" style="text-align:center;"><div class="kpi-label">Total Semua</div><div class="kpi-val" id="bl-total">0 <span class="kpi-unit">buah</span></div><div class="kpi-delta n" id="bl-total-s">—</div></div>
+    <div class="kpi" style="text-align:center;"><div class="kpi-label">Aktif / Produksi</div><div class="kpi-val" id="bl-aktif">0 <span class="kpi-unit">buah</span></div><div class="kpi-delta">Berproduksi</div></div>
+    <div class="kpi" style="text-align:center;"><div class="kpi-label">Nonaktif</div><div class="kpi-val" id="bl-mati">0 <span class="kpi-unit">buah</span></div><div class="kpi-delta r">Habis / Kontaminasi</div></div>
+  </div>
+
+  <!-- PINHEAD TERKAIT -->
+  <div class="alert-card alert-blue" style="margin-bottom:20px;">
+    💡 <strong>Tip:</strong> Setelah baglog aktif, catat pertumbuhan pinhead di menu <strong>Pinhead</strong> untuk melacak kapan siap panen.
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div><div class="card-title">Daftar Baglog</div><div class="card-sub">Semua batch</div></div></div>
+    <table class="tbl">
+      <thead><tr><th>Nama / Batch</th><th>Tgl Inokulasi</th><th>Jumlah</th><th>Status</th><th>Pinhead</th><th>Panen dari Ini</th><th></th></tr></thead>
+      <tbody id="baglogBody"><tr><td colspan="7"><div class="empty"><div class="empty-icon">🪵</div><div class="empty-text">Belum ada baglog.</div></div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ PINHEAD ══ -->
+<div class="page" id="page-pinhead">
+  <div class="topbar">
+    <div><div class="page-ey">Monitoring Tumbuh</div><div class="page-title">Tumbuh <em>Pinhead</em></div></div>
+    <button class="btn btn-primary" onclick="openModal('modalPinhead')">+ Catat Pinhead</button>
+  </div>
+
+  <div class="kpi-row kpi-3" style="margin-bottom:24px;">
+    <div class="kpi"><span class="kpi-icon">✦</span><div class="kpi-label">Total Dicatat</div><div class="kpi-val" id="ph-total">0 <span class="kpi-unit">log</span></div><div class="kpi-delta n">Semua batch</div></div>
+    <div class="kpi"><span class="kpi-icon">🌿</span><div class="kpi-label">Siap Panen (≥25 hari)</div><div class="kpi-val" id="ph-ready">0 <span class="kpi-unit">log</span></div><div class="kpi-delta">Segera catat panen!</div></div>
+    <div class="kpi"><span class="kpi-icon">⏱</span><div class="kpi-label">Rata-rata Tumbuh</div><div class="kpi-val" id="ph-avg">— <span class="kpi-unit">hari</span></div><div class="kpi-delta n">Hingga panen</div></div>
+  </div>
+
+  <!-- LINK KE BAGLOG AKTIF -->
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-head"><div><div class="card-title">Baglog Aktif (Siap Dicatat Pinhead)</div><div class="card-sub">Dari data baglog Anda</div></div></div>
+    <div id="baglogAktifList"><div class="empty"><div class="empty-icon">🪵</div><div class="empty-text">Belum ada baglog aktif.</div></div></div>
+  </div>
+
+  <div id="pinheadGrid" class="g3"><div class="empty" style="grid-column:1/-1;"><div class="empty-icon">✦</div><div class="empty-text">Belum ada catatan pinhead.</div></div></div>
+</div>
+
+<!-- ══ PANEN ══ -->
+<div class="page" id="page-panen">
+  <div class="topbar">
+    <div><div class="page-ey">Produksi</div><div class="page-title">Catat <em>Panen</em></div></div>
+    <button class="btn btn-primary" onclick="openModal('modalPanen')">+ Tambah Panen</button>
+  </div>
+
+  <!-- REMINDER dari pinhead -->
+  <div id="panenReminder"></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">Riwayat Panen</div><div class="card-sub">Semua sesi</div></div></div>
+      <div id="panenList"><div class="empty"><div class="empty-icon">🌾</div><div class="empty-text">Belum ada panen.</div></div></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:18px;">
+        <div class="card-head"><div><div class="card-title">Statistik</div><div class="card-sub">Ringkasan total</div></div></div>
+        <div class="stat-row"><span class="stat-key">Total Panen (kg)</span><span class="stat-val g" id="ps-total">0</span></div>
+        <div class="stat-row"><span class="stat-key">Rata-rata per Sesi</span><span class="stat-val gold" id="ps-avg">0 kg</span></div>
+        <div class="stat-row"><span class="stat-key">Panen Terbanyak</span><span class="stat-val" id="ps-max">0 kg</span></div>
+        <div class="stat-row"><span class="stat-key">Jumlah Sesi</span><span class="stat-val" id="ps-count">0</span></div>
+        <div class="stat-row"><span class="stat-key">Total Pendapatan</span><span class="stat-val g" style="font-size:16px;" id="ps-income">Rp 0</span></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Jumlah Baglog</label>
-        <input type="number" class="form-input" id="f-bl-jumlah" placeholder="100" min="1">
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">Grafik Panen</div></div></div>
+        <div class="chart-wrap"><canvas id="chartPanen2"></canvas></div>
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Tanggal Inokulasi</label>
-        <input type="date" class="form-input" id="f-bl-tgl">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <select class="form-select" id="f-bl-status">
+  </div>
+</div>
+
+<!-- ══ KEUANGAN ══ -->
+<div class="page" id="page-keuangan">
+  <div class="topbar">
+    <div><div class="page-ey">Finansial</div><div class="page-title">Catatan <em>Keuangan</em></div></div>
+    <button class="btn btn-primary" onclick="openModal('modalBiaya')">+ Tambah Pengeluaran</button>
+  </div>
+
+  <div class="kpi-row kpi-4">
+    <div class="kpi"><span class="kpi-icon">📥</span><div class="kpi-label">Total Pendapatan</div><div class="kpi-val" style="font-size:22px;" id="fin-inc">Rp 0</div><div class="kpi-delta">Dari semua panen</div></div>
+    <div class="kpi"><span class="kpi-icon">📤</span><div class="kpi-label">Total Pengeluaran</div><div class="kpi-val" style="font-size:22px;" id="fin-exp">Rp 0</div><div class="kpi-delta n">Biaya operasional</div></div>
+    <div class="kpi"><span class="kpi-icon">📊</span><div class="kpi-label">Laba Bersih</div><div class="kpi-val" style="font-size:22px;" id="fin-pro">Rp 0</div><div class="kpi-delta" id="fin-mar">Margin: 0%</div></div>
+    <div class="kpi"><span class="kpi-icon">⚖️</span><div class="kpi-label">Harga Rata-rata/kg</div><div class="kpi-val" style="font-size:22px;" id="fin-harga">Rp 0</div><div class="kpi-delta n">Semua penjualan</div></div>
+  </div>
+
+  <!-- RINGKASAN PER BAGLOG -->
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-head"><div><div class="card-title">Performa per Batch Baglog</div><div class="card-sub">Sinkron dari data panen</div></div></div>
+    <table class="tbl">
+      <thead><tr><th>Batch</th><th>Jumlah Baglog</th><th>Total Panen (kg)</th><th>Pendapatan</th><th>Avg/Baglog</th></tr></thead>
+      <tbody id="perfBody"><tr><td colspan="5"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Catat panen dan hubungkan ke batch untuk melihat performa.</div></div></td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">Riwayat Pengeluaran</div></div></div>
+      <div id="biayaList"><div class="empty"><div class="empty-icon">💸</div><div class="empty-text">Belum ada pengeluaran.</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">Laba Rugi</div></div></div>
+      <div class="chart-wrap"><canvas id="chartProfit2"></canvas></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ══ MODALS ══ -->
+
+<!-- Baglog -->
+<div class="modal-overlay" id="modalBaglog">
+  <div class="modal">
+    <div class="modal-title">Tambah Baglog</div>
+    <div class="modal-sub">Data batch inokulasi baru</div>
+    <div class="fg">
+      <div class="fgrp"><label class="flbl">Nama / Kode Batch</label><input type="text" class="finp" id="bl-nama" placeholder="Batch A, BL-001..."></div>
+      <div class="fgrp"><label class="flbl">Jumlah Baglog</label><input type="number" class="finp" id="bl-jml" placeholder="100" min="1"><div class="fhint">Otomatis terupdate di semua menu</div></div>
+    </div>
+    <div class="fg">
+      <div class="fgrp"><label class="flbl">Tanggal Inokulasi</label><input type="date" class="finp" id="bl-tgl"></div>
+      <div class="fgrp"><label class="flbl">Status Awal</label>
+        <select class="fsel" id="bl-status">
           <option value="inkubasi">Inkubasi</option>
-          <option value="aktif">Aktif / Berproduksi</option>
+          <option value="aktif">Aktif / Produksi</option>
           <option value="panen">Siap Panen</option>
           <option value="habis">Sudah Habis</option>
           <option value="kontaminasi">Kontaminasi</option>
         </select>
       </div>
     </div>
-    <div class="form-row single">
-      <div class="form-group">
-        <label class="form-label">Catatan</label>
-        <textarea class="form-textarea" id="f-bl-catatan" placeholder="Sumber bibit, media tanam, dll..."></textarea>
-      </div>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modalBaglog')">Batal</button>
-      <button class="btn btn-primary" onclick="saveBaglog()">Simpan Baglog</button>
-    </div>
+    <div class="fg s"><div class="fgrp"><label class="flbl">Catatan</label><textarea class="ftxt" id="bl-cat" placeholder="Sumber bibit, media tanam..."></textarea></div></div>
+    <div class="fact"><button class="btn btn-outline" onclick="closeModal('modalBaglog')">Batal</button><button class="btn btn-primary" onclick="saveBaglog()">Simpan Baglog</button></div>
   </div>
 </div>
 
-<!-- Modal Kondisi -->
-<div class="modal-overlay" id="modalKondisi">
+<!-- Pinhead -->
+<div class="modal-overlay" id="modalPinhead">
   <div class="modal">
-    <div class="modal-title">🌡️ Update Kondisi Kumbung</div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Suhu (°C)</label>
-        <input type="number" class="form-input" id="f-kond-suhu" placeholder="25" step="0.5">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Kelembaban (%)</label>
-        <input type="number" class="form-input" id="f-kond-lembab" placeholder="85" min="0" max="100">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Sirkulasi Udara</label>
-        <select class="form-select" id="f-kond-sir">
-          <option value="Sangat Baik">Sangat Baik</option>
-          <option value="Baik">Baik</option>
-          <option value="Cukup">Cukup</option>
-          <option value="Kurang">Kurang</option>
+    <div class="modal-title">Catat Tumbuh Pinhead</div>
+    <div class="modal-sub">Tanggal pertama pinhead muncul</div>
+    <div class="fg s">
+      <div class="fgrp">
+        <label class="flbl">Pilih dari Baglog Terdaftar</label>
+        <select class="fsel" id="ph-baglog-sel" onchange="fillPinheadFromBaglog()">
+          <option value="">— Pilih batch baglog —</option>
         </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Penyiraman</label>
-        <select class="form-select" id="f-kond-siram">
-          <option value="Sudah">Sudah disiram</option>
-          <option value="Belum">Belum disiram</option>
-          <option value="2x">2× hari ini</option>
-        </select>
+        <div class="fhint">Atau isi manual di bawah</div>
       </div>
     </div>
-    <div class="form-row single">
-      <div class="form-group">
-        <label class="form-label">Catatan</label>
-        <textarea class="form-textarea" id="f-kond-cat" placeholder="Kondisi kumbung hari ini..."></textarea>
-      </div>
+    <div class="fg">
+      <div class="fgrp"><label class="flbl">Nama / Kode Baglog</label><input type="text" class="finp" id="ph-nama" placeholder="Batch A..."></div>
+      <div class="fgrp"><label class="flbl">Jumlah Baglog</label><input type="number" class="finp" id="ph-jml" placeholder="100" min="1"></div>
     </div>
-    <div class="form-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modalKondisi')">Batal</button>
-      <button class="btn btn-primary" onclick="saveKondisi()">Simpan Kondisi</button>
+    <div class="fg">
+      <div class="fgrp"><label class="flbl">Tanggal Tumbuh Pinhead</label><input type="date" class="finp" id="ph-tgl"></div>
+      <div class="fgrp"><label class="flbl">Estimasi Siap Panen</label><input type="date" class="finp" id="ph-est"><div class="fhint">Otomatis +27 hari (kisaran 25–30 hari)</div></div>
     </div>
+    <div class="fg s"><div class="fgrp"><label class="flbl">Catatan</label><textarea class="ftxt" id="ph-cat" placeholder="Kondisi tumbuh, jumlah pinhead..."></textarea></div></div>
+    <div class="fact"><button class="btn btn-outline" onclick="closeModal('modalPinhead')">Batal</button><button class="btn btn-primary" onclick="savePinhead()">Simpan</button></div>
   </div>
 </div>
 
-<!-- Modal Biaya -->
+<!-- Panen -->
+<div class="modal-overlay" id="modalPanen">
+  <div class="modal">
+    <div class="modal-title">Catat Panen</div>
+    <div class="modal-sub">Hasil panen dari baglog aktif</div>
+    <div class="fg s">
+      <div class="fgrp">
+        <label class="flbl">Dari Batch Baglog</label>
+        <select class="fsel" id="pn-batch">
+          <option value="">— Pilih batch (opsional) —</option>
+        </select>
+        <div class="fhint">Pilih batch untuk sinkron performa keuangan</div>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="fgrp"><label class="flbl">Tanggal Panen</label><input type="date" class="finp" id="pn-tgl"></div>
+      <div class="fgrp"><label class="flbl">Berat (kg)</label><input type="number" class="finp" id="pn-berat" placeholder="0.0" step="0.1" min="0"></div>
+    </div>
+    <div class="fg">
+      <div class="fgrp"><label class="flbl">Harga Jual (Rp/kg)</label><input type="number" class="finp" id="pn-harga" placeholder="22000"></div>
+      <div class="fgrp"><label class="flbl">Dijual ke</label>
+        <select class="fsel" id="pn-jual">
+          <option>Pasar Tradisional</option><option>Warung Makan</option><option>Restoran</option><option>WhatsApp / Tetangga</option><option>Online</option><option>Lainnya</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg s"><div class="fgrp"><label class="flbl">Catatan</label><textarea class="ftxt" id="pn-cat" placeholder="Kualitas, kondisi..."></textarea></div></div>
+    <div class="fact"><button class="btn btn-outline" onclick="closeModal('modalPanen')">Batal</button><button class="btn btn-primary" onclick="savePanen()">Simpan Panen</button></div>
+  </div>
+</div>
+
+<!-- Biaya -->
 <div class="modal-overlay" id="modalBiaya">
   <div class="modal">
-    <div class="modal-title">💸 Tambah Pengeluaran</div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Tanggal</label>
-        <input type="date" class="form-input" id="f-biaya-tgl">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Jumlah (Rp)</label>
-        <input type="number" class="form-input" id="f-biaya-jml" placeholder="50000">
-      </div>
+    <div class="modal-title">Tambah Pengeluaran</div>
+    <div class="modal-sub">Biaya operasional</div>
+    <div class="fg">
+      <div class="fgrp"><label class="flbl">Tanggal</label><input type="date" class="finp" id="by-tgl"></div>
+      <div class="fgrp"><label class="flbl">Jumlah (Rp)</label><input type="number" class="finp" id="by-jml" placeholder="50000"></div>
     </div>
-    <div class="form-row single">
-      <div class="form-group">
-        <label class="form-label">Kategori</label>
-        <select class="form-select" id="f-biaya-kat">
-          <option value="Bibit">Bibit / Baglog</option>
-          <option value="Serbuk">Serbuk Kayu / Media</option>
-          <option value="Listrik">Listrik</option>
-          <option value="Peralatan">Peralatan</option>
-          <option value="Transportasi">Transportasi</option>
-          <option value="Lainnya">Lainnya</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row single">
-      <div class="form-group">
-        <label class="form-label">Keterangan</label>
-        <input type="text" class="form-input" id="f-biaya-ket" placeholder="Detail pengeluaran...">
-      </div>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modalBiaya')">Batal</button>
-      <button class="btn btn-primary" onclick="saveBiaya()">Simpan</button>
-    </div>
+    <div class="fg s"><div class="fgrp"><label class="flbl">Kategori</label><select class="fsel" id="by-kat"><option>Bibit / Baglog</option><option>Serbuk Kayu / Media</option><option>Listrik</option><option>Peralatan</option><option>Transportasi</option><option>Lainnya</option></select></div></div>
+    <div class="fg s"><div class="fgrp"><label class="flbl">Keterangan</label><input type="text" class="finp" id="by-ket" placeholder="Detail pengeluaran..."></div></div>
+    <div class="fact"><button class="btn btn-outline" onclick="closeModal('modalBiaya')">Batal</button><button class="btn btn-primary" onclick="saveBiaya()">Simpan</button></div>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast">✓ Tersimpan!</div>
+<div class="toast" id="toast">Tersimpan</div>
 
 <script>
-// ======== STATE & STORAGE ========
-const DB_KEY = 'mycotrack_v1';
-
-function loadDB() {
-  try {
-    return JSON.parse(localStorage.getItem(DB_KEY)) || { baglog: [], panen: [], kondisi: [], biaya: [] };
-  } catch { return { baglog: [], panen: [], kondisi: [], biaya: [] }; }
-}
-
-function saveDB(db) {
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
-}
-
+// ════ DB ════
+const KEY = 'mycotrack_v3';
+function loadDB(){try{return JSON.parse(localStorage.getItem(KEY))||{baglog:[],panen:[],pinhead:[],biaya:[]};}catch{return{baglog:[],panen:[],pinhead:[],biaya:[]};}}
+function saveDB(d){localStorage.setItem(KEY,JSON.stringify(d));}
 let db = loadDB();
 
-// ======== CHARTS ========
-let chartPanen, chartRevenue, chartProfit;
-
-function initCharts() {
-  Chart.defaults.color = '#6b6880';
-  Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
-
-  const pCtx = document.getElementById('chartPanen').getContext('2d');
-  chartPanen = new Chart(pCtx, {
-    type: 'bar',
-    data: { labels: [], datasets: [{ label: 'Panen (kg)', data: [], backgroundColor: 'rgba(167,139,250,0.6)', borderColor: '#a78bfa', borderWidth: 1, borderRadius: 6 }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { font: { family: 'JetBrains Mono', size: 9 } } }, y: { ticks: { font: { family: 'JetBrains Mono', size: 9 } } } } }
-  });
-
-  const rCtx = document.getElementById('chartRevenue').getContext('2d');
-  chartRevenue = new Chart(rCtx, {
-    type: 'line',
-    data: { labels: [], datasets: [{ label: 'Pendapatan', data: [], borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.08)', borderWidth: 2, fill: true, tension: 0.4, pointBackgroundColor: '#34d399', pointRadius: 4 }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { font: { family: 'JetBrains Mono', size: 9 } } }, y: { ticks: { font: { family: 'JetBrains Mono', size: 9 }, callback: v => 'Rp' + (v/1000).toFixed(0) + 'k' } } } }
-  });
-
-  const prCtx = document.getElementById('chartProfit').getContext('2d');
-  chartProfit = new Chart(prCtx, {
-    type: 'bar',
-    data: { labels: ['Pendapatan', 'Pengeluaran', 'Laba Bersih'], datasets: [{ data: [0, 0, 0], backgroundColor: ['rgba(52,211,153,0.6)', 'rgba(248,113,113,0.6)', 'rgba(167,139,250,0.6)'], borderRadius: 8 }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { font: { family: 'JetBrains Mono', size: 10 } } }, y: { ticks: { font: { family: 'JetBrains Mono', size: 9 }, callback: v => 'Rp' + (v/1000).toFixed(0) + 'k' } } } }
-  });
+// ════ CHARTS ════
+let cPanen, cPanen2, cProfit, cProfit2;
+function initCharts(){
+  Chart.defaults.color='#8a7a60';Chart.defaults.borderColor='#ddd5c0';Chart.defaults.font.family='Courier Prime';
+  const barOpts=(id)=>({type:'bar',data:{labels:[],datasets:[{data:[],backgroundColor:'rgba(45,90,61,0.18)',borderColor:'#2d5a3d',borderWidth:1.5,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#ede5d5'}}}}});
+  const lineOpts=(id)=>({type:'line',data:{labels:[],datasets:[{data:[],borderColor:'#b8860b',backgroundColor:'rgba(184,134,11,0.07)',borderWidth:2,fill:true,tension:0.4,pointBackgroundColor:'#b8860b',pointRadius:3,pointBorderColor:'#faf7f2',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#ede5d5'},ticks:{callback:v=>'Rp'+(v/1000).toFixed(0)+'k'}}}}});
+  const profOpts=(id)=>({type:'bar',data:{labels:['Pendapatan','Pengeluaran','Laba'],datasets:[{data:[0,0,0],backgroundColor:['rgba(45,90,61,0.2)','rgba(139,32,32,0.15)','rgba(184,134,11,0.2)'],borderColor:['#2d5a3d','#8b2020','#b8860b'],borderWidth:1.5,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#ede5d5'},ticks:{callback:v=>'Rp'+(v/1000).toFixed(0)+'k'}}}}});
+  cPanen  = new Chart(document.getElementById('chartPanen'), barOpts());
+  cPanen2 = new Chart(document.getElementById('chartPanen2'), barOpts());
+  cProfit = new Chart(document.getElementById('chartProfit'), profOpts());
+  cProfit2= new Chart(document.getElementById('chartProfit2'), profOpts());
 }
 
-// ======== UTILS ========
-function fmtDate(d) {
-  if (!d) return '—';
-  const dt = new Date(d);
-  return dt.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// ════ UTILS ════
+function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});}
+function fmtRp(n){return'Rp '+Number(n||0).toLocaleString('id-ID');}
+function today(){return new Date().toISOString().split('T')[0];}
+function daysDiff(d){const a=new Date(d),b=new Date();b.setHours(0,0,0,0);return Math.floor((b-a)/86400000);}
+function addDays(d,n){const a=new Date(d);a.setDate(a.getDate()+n);return a.toISOString().split('T')[0];}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
-function fmtRp(n) {
-  return 'Rp ' + Number(n).toLocaleString('id-ID');
-}
-
-function today() {
-  return new Date().toISOString().split('T')[0];
-}
-
-function showToast(msg = '✓ Tersimpan!') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-function openModal(id) {
+function openModal(id){
   document.getElementById(id).classList.add('open');
-  // Set today's date on date inputs
-  const dateInputs = document.querySelectorAll(`#${id} input[type="date"]`);
-  dateInputs.forEach(i => { if (!i.value) i.value = today(); });
+  document.querySelectorAll(`#${id} input[type="date"]`).forEach(i=>{if(!i.value)i.value=today();});
+  if(id==='modalPinhead'){
+    populateBaglogSelect('ph-baglog-sel');
+    const t=document.getElementById('ph-tgl'),e=document.getElementById('ph-est');
+    t.oninput=()=>{e.value=addDays(t.value,27);};
+    if(!e.value)e.value=addDays(today(),27);
+  }
+  if(id==='modalPanen'){populateBaglogSelect('pn-batch');}
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+
+// Isi dropdown baglog di modal
+function populateBaglogSelect(selId){
+  const sel=document.getElementById(selId);
+  if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Pilih batch baglog —</option>';
+  db.baglog.filter(b=>b.status==='aktif'||b.status==='panen'||b.status==='inkubasi').forEach(b=>{
+    const opt=document.createElement('option');
+    opt.value=b.id;
+    opt.textContent=`${b.nama} (${b.jml} buah)`;
+    sel.appendChild(opt);
+  });
+  if(cur)sel.value=cur;
 }
 
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// Close on overlay click
-document.querySelectorAll('.modal-overlay').forEach(el => {
-  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
-});
-
-// ======== SAVE FUNCTIONS ========
-function savePanen() {
-  const tgl = document.getElementById('f-panen-tgl').value;
-  const berat = parseFloat(document.getElementById('f-panen-berat').value);
-  const harga = parseFloat(document.getElementById('f-panen-harga').value) || 22000;
-  const pembeli = document.getElementById('f-panen-pembeli').value;
-  const catatan = document.getElementById('f-panen-catatan').value;
-
-  if (!tgl || !berat || berat <= 0) { alert('Isi tanggal dan berat panen!'); return; }
-
-  db.panen.push({ id: Date.now(), tgl, berat, harga, pembeli, catatan, pendapatan: berat * harga });
-  db.panen.sort((a, b) => new Date(b.tgl) - new Date(a.tgl));
-  saveDB(db);
-  closeModal('modalPanen');
-
-  // reset
-  ['f-panen-tgl','f-panen-berat','f-panen-catatan'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-panen-harga').value = '';
-
-  renderAll();
-  showToast('✓ Panen berhasil dicatat!');
+// Auto-fill dari dropdown baglog ke form pinhead
+function fillPinheadFromBaglog(){
+  const sel=document.getElementById('ph-baglog-sel');
+  if(!sel.value)return;
+  const b=db.baglog.find(x=>x.id==sel.value);
+  if(!b)return;
+  document.getElementById('ph-nama').value=b.nama;
+  document.getElementById('ph-jml').value=b.jml;
 }
 
-function saveBaglog() {
-  const nama = document.getElementById('f-bl-nama').value;
-  const jumlah = parseInt(document.getElementById('f-bl-jumlah').value);
-  const tgl = document.getElementById('f-bl-tgl').value;
-  const status = document.getElementById('f-bl-status').value;
-  const catatan = document.getElementById('f-bl-catatan').value;
-
-  if (!nama || !jumlah || jumlah <= 0) { alert('Isi nama dan jumlah baglog!'); return; }
-
-  db.baglog.push({ id: Date.now(), nama, jumlah, tgl, status, catatan });
-  saveDB(db);
-  closeModal('modalBaglog');
-  ['f-bl-nama','f-bl-jumlah','f-bl-tgl','f-bl-catatan'].forEach(id => document.getElementById(id).value = '');
-
-  renderAll();
-  showToast('✓ Baglog berhasil ditambahkan!');
+// ════ SAVE ════
+function saveBaglog(){
+  const nama=document.getElementById('bl-nama').value.trim();
+  const jml=parseInt(document.getElementById('bl-jml').value);
+  const tgl=document.getElementById('bl-tgl').value;
+  const status=document.getElementById('bl-status').value;
+  const cat=document.getElementById('bl-cat').value;
+  if(!nama||!jml||jml<=0){alert('Isi nama dan jumlah baglog!');return;}
+  db.baglog.push({id:Date.now(),nama,jml,tgl,status,cat});
+  saveDB(db);closeModal('modalBaglog');
+  ['bl-nama','bl-jml','bl-tgl','bl-cat'].forEach(id=>document.getElementById(id).value='');
+  renderAll();toast('Baglog berhasil ditambahkan');
 }
 
-function deleteBaglog(id) {
-  if (!confirm('Hapus data baglog ini?')) return;
-  db.baglog = db.baglog.filter(b => b.id !== id);
-  saveDB(db);
-  renderAll();
-  showToast('🗑 Baglog dihapus');
+function savePinhead(){
+  const nama=document.getElementById('ph-nama').value.trim();
+  const jml=parseInt(document.getElementById('ph-jml').value)||0;
+  const tgl=document.getElementById('ph-tgl').value;
+  const est=document.getElementById('ph-est').value;
+  const cat=document.getElementById('ph-cat').value;
+  const baglogId=document.getElementById('ph-baglog-sel').value;
+  if(!nama||!tgl){alert('Isi nama dan tanggal tumbuh!');return;}
+  db.pinhead.push({id:Date.now(),nama,jml,tgl,est,cat,baglogId:baglogId||null,status:'aktif'});
+  db.pinhead.sort((a,b)=>new Date(b.tgl)-new Date(a.tgl));
+  // Update status baglog jadi siap panen kalau sudah 25 hari
+  if(baglogId){
+    const bl=db.baglog.find(x=>x.id==baglogId);
+    if(bl&&bl.status==='aktif')bl.status='panen';
+  }
+  saveDB(db);closeModal('modalPinhead');
+  ['ph-nama','ph-jml','ph-tgl','ph-est','ph-cat'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ph-baglog-sel').value='';
+  renderAll();toast('Pinhead berhasil dicatat');
 }
 
-function saveKondisi() {
-  const suhu = parseFloat(document.getElementById('f-kond-suhu').value);
-  const lembab = parseFloat(document.getElementById('f-kond-lembab').value);
-  const sir = document.getElementById('f-kond-sir').value;
-  const siram = document.getElementById('f-kond-siram').value;
-  const cat = document.getElementById('f-kond-cat').value;
-
-  if (!suhu || !lembab) { alert('Isi suhu dan kelembaban!'); return; }
-
-  db.kondisi.unshift({ id: Date.now(), tgl: new Date().toISOString(), suhu, lembab, sir, siram, cat });
-  if (db.kondisi.length > 30) db.kondisi.pop();
-  saveDB(db);
-  closeModal('modalKondisi');
-  ['f-kond-suhu','f-kond-lembab','f-kond-cat'].forEach(id => document.getElementById(id).value = '');
-
-  renderAll();
-  showToast('✓ Kondisi berhasil diupdate!');
+function savePanen(){
+  const tgl=document.getElementById('pn-tgl').value;
+  const berat=parseFloat(document.getElementById('pn-berat').value);
+  const harga=parseFloat(document.getElementById('pn-harga').value)||22000;
+  const jual=document.getElementById('pn-jual').value;
+  const cat=document.getElementById('pn-cat').value;
+  const batchId=document.getElementById('pn-batch').value;
+  if(!tgl||!berat||berat<=0){alert('Isi tanggal dan berat panen!');return;}
+  const pendapatan=berat*harga;
+  db.panen.push({id:Date.now(),tgl,berat,harga,jual,cat,batchId:batchId||null,pendapatan});
+  db.panen.sort((a,b)=>new Date(b.tgl)-new Date(a.tgl));
+  saveDB(db);closeModal('modalPanen');
+  ['pn-tgl','pn-berat','pn-harga','pn-cat'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pn-batch').value='';
+  renderAll();toast('Panen berhasil dicatat · '+fmtRp(pendapatan));
 }
 
-function saveBiaya() {
-  const tgl = document.getElementById('f-biaya-tgl').value;
-  const jml = parseFloat(document.getElementById('f-biaya-jml').value);
-  const kat = document.getElementById('f-biaya-kat').value;
-  const ket = document.getElementById('f-biaya-ket').value;
-
-  if (!tgl || !jml || jml <= 0) { alert('Isi tanggal dan jumlah!'); return; }
-
-  db.biaya.push({ id: Date.now(), tgl, jml, kat, ket });
-  db.biaya.sort((a, b) => new Date(b.tgl) - new Date(a.tgl));
-  saveDB(db);
-  closeModal('modalBiaya');
-  ['f-biaya-tgl','f-biaya-jml','f-biaya-ket'].forEach(id => document.getElementById(id).value = '');
-
-  renderAll();
-  showToast('✓ Pengeluaran dicatat!');
+function saveBiaya(){
+  const tgl=document.getElementById('by-tgl').value;
+  const jml=parseFloat(document.getElementById('by-jml').value);
+  const kat=document.getElementById('by-kat').value;
+  const ket=document.getElementById('by-ket').value;
+  if(!tgl||!jml||jml<=0){alert('Isi tanggal dan jumlah!');return;}
+  db.biaya.push({id:Date.now(),tgl,jml,kat,ket});
+  db.biaya.sort((a,b)=>new Date(b.tgl)-new Date(a.tgl));
+  saveDB(db);closeModal('modalBiaya');
+  ['by-tgl','by-jml','by-ket'].forEach(id=>document.getElementById(id).value='');
+  renderAll();toast('Pengeluaran dicatat');
 }
 
-// ======== RENDER FUNCTIONS ========
-function renderDashboard() {
+function delBaglog(id){if(!confirm('Hapus baglog ini?'))return;db.baglog=db.baglog.filter(b=>b.id!==id);saveDB(db);renderAll();toast('Dihapus');}
+function delPinhead(id){if(!confirm('Hapus pinhead ini?'))return;db.pinhead=db.pinhead.filter(p=>p.id!==id);saveDB(db);renderAll();toast('Dihapus');}
+function delPanen(id){if(!confirm('Hapus data panen ini?'))return;db.panen=db.panen.filter(p=>p.id!==id);saveDB(db);renderAll();toast('Dihapus');}
+function delBiaya(id){if(!confirm('Hapus pengeluaran ini?'))return;db.biaya=db.biaya.filter(b=>b.id!==id);saveDB(db);renderAll();toast('Dihapus');}
+
+// ════ RENDER ════
+function renderDashboard(){
+  // Hitung semua data
+  const blAktif=db.baglog.filter(b=>b.status==='aktif'||b.status==='panen').reduce((s,b)=>s+b.jml,0);
+  const blTotal=db.baglog.reduce((s,b)=>s+b.jml,0);
+  const phAktif=db.pinhead.filter(p=>p.status==='aktif').length;
+  const phReady=db.pinhead.filter(p=>p.status==='aktif'&&daysDiff(p.tgl)>=25).length;
+  const totPanen=db.panen.reduce((s,p)=>s+p.berat,0);
+  const totIncome=db.panen.reduce((s,p)=>s+p.pendapatan,0);
+  const totExpense=db.biaya.reduce((s,b)=>s+b.jml,0);
+  const profit=totIncome-totExpense;
+
+  // FLOW BAR sinkron
+  document.getElementById('fd-baglog').textContent=blAktif+' buah';
+  document.getElementById('fd-pinhead').textContent=phAktif+' log';
+  document.getElementById('fd-pinhead').className='flow-count'+(phReady>0?' a':'');
+  document.getElementById('fd-panen').textContent=totPanen.toFixed(1)+' kg';
+  document.getElementById('fd-jual').textContent=fmtRp(totIncome);
+
+  // Flow step highlight
+  ['fs-baglog','fs-pinhead','fs-panen','fs-jual'].forEach(id=>document.getElementById(id).className='flow-step');
+  if(blAktif>0)document.getElementById('fs-baglog').className='flow-step done-flow';
+  if(phAktif>0)document.getElementById('fs-pinhead').className='flow-step active-flow';
+  if(totPanen>0)document.getElementById('fs-panen').className='flow-step done-flow';
+  if(totIncome>0)document.getElementById('fs-jual').className='flow-step done-flow';
+
+  // ALERTS
+  const alerts=[];
+  if(phReady>0)alerts.push(`<div class="alert-card alert-gold">🌿 <strong>${phReady} log pinhead</strong> sudah ≥5 hari — segera <a href="#" onclick="showPage('panen');return false;" style="color:var(--gold);font-weight:700;">catat panen!</a></div>`);
+  if(blAktif>0&&phAktif===0)alerts.push(`<div class="alert-card alert-blue">💡 Anda punya <strong>${blAktif} baglog aktif</strong> tapi belum ada catatan pinhead. <a href="#" onclick="showPage('pinhead');return false;" style="color:var(--blue);font-weight:700;">Catat sekarang →</a></div>`);
+  document.getElementById('alertSection').innerHTML=alerts.join('');
+
   // KPI
-  const totalBaglog = db.baglog.reduce((s, b) => s + (b.status === 'aktif' || b.status === 'panen' ? b.jumlah : 0), 0);
-  const totalPanen = db.panen.reduce((s, p) => s + p.berat, 0);
-  const totalPendapatan = db.panen.reduce((s, p) => s + p.pendapatan, 0);
-  const lastPanen = db.panen[0];
+  document.getElementById('kpi-baglog').innerHTML=`${blAktif} <span class="kpi-unit">buah</span>`;
+  document.getElementById('kpi-baglog-s').textContent=blTotal+' total terdaftar';
+  document.getElementById('kpi-pinhead').innerHTML=`${phAktif} <span class="kpi-unit">log</span>`;
+  document.getElementById('kpi-pinhead-s').className='kpi-delta'+(phReady>0?' a':' n');
+  document.getElementById('kpi-pinhead-s').textContent=phReady>0?phReady+' siap panen!':'Pantau pertumbuhan';
+  document.getElementById('kpi-panen').innerHTML=`${totPanen.toFixed(1)} <span class="kpi-unit">kg</span>`;
+  document.getElementById('kpi-panen-s').textContent=db.panen.length+' sesi panen';
+  document.getElementById('kpi-profit').textContent=fmtRp(profit);
+  document.getElementById('kpi-profit').style.color=profit>=0?'var(--green)':'var(--red)';
+  document.getElementById('kpi-profit-s').textContent='Margin: '+(totIncome>0?((profit/totIncome)*100).toFixed(1):0)+'%';
 
-  document.getElementById('kpiBaglog').innerHTML = `${totalBaglog} <span class="kpi-unit">buah</span>`;
-  document.getElementById('kpiBaglogDelta').textContent = db.baglog.length + ' batch terdaftar';
-  document.getElementById('kpiPanen').innerHTML = `${totalPanen.toFixed(1)} <span class="kpi-unit">kg</span>`;
-  document.getElementById('kpiPanenDelta').textContent = db.panen.length + ' sesi panen';
-  document.getElementById('kpiPendapatan').innerHTML = fmtRp(totalPendapatan);
-  document.getElementById('kpiPendapatanDelta').textContent = 'Total akumulasi';
-  document.getElementById('kpiLastHarvest').textContent = lastPanen ? lastPanen.berat.toFixed(1) + ' kg' : '—';
-  document.getElementById('kpiLastHarvestSub').textContent = lastPanen ? fmtDate(lastPanen.tgl) : 'Belum ada panen';
+  // SIDEBAR BADGES
+  document.getElementById('nb-baglog').textContent=blAktif;
+  document.getElementById('nb-pinhead').textContent=phAktif;
+  document.getElementById('nb-pinhead').className='nav-badge'+(phReady>0?' red':'');
+  document.getElementById('nb-panen').textContent=totPanen.toFixed(1)+' kg';
+  document.getElementById('nb-profit').textContent=profit>=0?fmtRp(profit).replace('Rp ','Rp'):fmtRp(profit);
+  document.getElementById('nb-profit').className='nav-badge'+(profit>=0?' green':' red');
 
-  // Kondisi
-  const kond = db.kondisi[0];
-  if (kond) {
-    renderKondisiDisplay(kond, 'cd-suhu', 'cd-lembab', 'cd-sirkulasi', 'cd-suhu-s', 'cd-lembab-s', 'cd-sir-s');
-  }
+  // ACTIVITY LOG
+  const acts=[
+    ...db.panen.map(p=>({type:'g',tgl:p.tgl,title:`Panen ${p.berat} kg`,meta:`${p.jual} · ${fmtRp(p.pendapatan)}${p.batchId?' · '+getBatchName(p.batchId):''}`,sort:new Date(p.tgl)})),
+    ...db.baglog.map(b=>({type:'b',tgl:b.tgl,title:`Baglog: ${b.nama}`,meta:`${b.jml} buah · ${b.status}`,sort:new Date(b.tgl)})),
+    ...db.pinhead.map(ph=>({type:'a',tgl:ph.tgl,title:`Pinhead: ${ph.nama}`,meta:`Hari ke-${daysDiff(ph.tgl)} · Est: ${fmtDate(ph.est)}`,sort:new Date(ph.tgl)})),
+    ...db.biaya.map(b=>({type:'r',tgl:b.tgl,title:`${b.kat}: ${b.ket||'Pengeluaran'}`,meta:fmtRp(b.jml),sort:new Date(b.tgl)})),
+  ].sort((a,b)=>b.sort-a.sort).slice(0,8);
+  const logEl=document.getElementById('actLog');
+  logEl.innerHTML=acts.length===0?'<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Belum ada aktivitas.</div></div>':acts.map(a=>`<div class="log-item"><div class="log-dot ${a.type}" style="margin-top:5px;flex-shrink:0;"></div><div style="flex:1;"><div class="log-title">${a.title}</div><div class="log-meta">${a.meta} · ${fmtDate(a.tgl)}</div></div></div>`).join('');
 
-  // Activity Log
-  const logEl = document.getElementById('activityLog');
-  const allActs = [
-    ...db.panen.map(p => ({ type: 'harvest', tgl: p.tgl, title: `Panen ${p.berat} kg`, meta: `${p.pembeli} · ${fmtRp(p.pendapatan)}` })),
-    ...db.baglog.map(b => ({ type: 'baglog', tgl: b.tgl, title: `Tambah baglog: ${b.nama}`, meta: `${b.jumlah} buah · ${b.status}` })),
-    ...db.kondisi.map(k => ({ type: 'note', tgl: k.tgl, title: `Update kondisi: ${k.suhu}°C / ${k.lembab}%`, meta: `Sirkulasi: ${k.sir}` })),
-    ...db.biaya.map(b => ({ type: 'alert', tgl: b.tgl, title: `Pengeluaran: ${b.kat}`, meta: `${fmtRp(b.jml)} · ${b.ket}` })),
-  ].sort((a, b) => new Date(b.tgl) - new Date(a.tgl)).slice(0, 8);
+  // DASH PINHEAD (siap & hampir siap)
+  const notif=db.pinhead.filter(p=>p.status==='aktif'&&daysDiff(p.tgl)>=10).sort((a,b)=>daysDiff(b.tgl)-daysDiff(a.tgl)).slice(0,5);
+  const dpEl=document.getElementById('dashPinhead');
+  dpEl.innerHTML=notif.length===0?'<div class="empty"><div class="empty-icon">✦</div><div class="empty-text">Tidak ada pinhead yang perlu perhatian saat ini.</div></div>':notif.map(p=>{
+    const d=daysDiff(p.tgl);
+    const cls=d>=30?'badge-green':d>=25?'badge-amber':'badge-blue';
+    const lbl=d>=30?'Siap Panen!':d>=25?'Hampir Siap':'Tumbuh';
+    return`<div class="log-item"><div class="log-dot ${d>=30?'g':d>=25?'a':'b'}" style="margin-top:5px;flex-shrink:0;"></div><div style="flex:1;"><div class="log-title">${p.nama}${p.baglogId?' <span style="font-weight:400;color:var(--muted);">— '+getBatchName(p.baglogId)+'</span>':''}</div><div class="log-meta">Tumbuh ${fmtDate(p.tgl)} · Est panen: ${fmtDate(p.est)}</div></div><div class="log-right"><span class="badge ${cls}">${lbl}</span><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;">${d} hari</div></div></div>`;
+  }).join('');
 
-  if (allActs.length === 0) {
-    logEl.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Belum ada aktivitas.<br>Mulai catat panen pertama!</div></div>';
-  } else {
-    logEl.innerHTML = allActs.map(a => `
-      <div class="log-item">
-        <div class="log-dot ${a.type}"></div>
-        <div class="log-content">
-          <div class="log-title">${a.title}</div>
-          <div class="log-meta">${a.meta} · ${fmtDate(a.tgl)}</div>
-        </div>
-      </div>`).join('');
-  }
-
-  // Charts
-  const sorted = [...db.panen].sort((a, b) => new Date(a.tgl) - new Date(b.tgl));
-  const panenLabels = sorted.map(p => fmtDate(p.tgl));
-  const panenData = sorted.map(p => p.berat);
-  const revenueData = sorted.map(p => p.pendapatan);
-
-  chartPanen.data.labels = panenLabels;
-  chartPanen.data.datasets[0].data = panenData;
-  chartPanen.update();
-
-  chartRevenue.data.labels = panenLabels;
-  chartRevenue.data.datasets[0].data = revenueData;
-  chartRevenue.update();
-}
-
-function renderBaglog() {
-  const tbody = document.getElementById('baglogTableBody');
-  if (db.baglog.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">🪵</div><div class="empty-text">Belum ada data baglog.</div></div></td></tr>';
-  } else {
-    tbody.innerHTML = db.baglog.map(b => {
-      const statusMap = { inkubasi: ['badge-blue','Inkubasi'], aktif: ['badge-green','Aktif'], panen: ['badge-amber','Siap Panen'], habis: ['badge-gray','Habis'], kontaminasi: ['badge-red','Kontaminasi'] };
-      const [cls, lbl] = statusMap[b.status] || ['badge-gray', b.status];
-      return `<tr>
-        <td><strong>${b.nama}</strong></td>
-        <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${fmtDate(b.tgl)}</td>
-        <td><strong>${b.jumlah}</strong> buah</td>
-        <td><span class="badge ${cls}">${lbl}</span></td>
-        <td style="color:var(--muted2);font-size:12px;max-width:200px;">${b.catatan || '—'}</td>
-        <td><button class="btn btn-danger" style="padding:6px 12px;font-size:11px;" onclick="deleteBaglog(${b.id})">Hapus</button></td>
-      </tr>`;
-    }).join('');
-  }
-
-  const total = db.baglog.reduce((s, b) => s + b.jumlah, 0);
-  const aktif = db.baglog.filter(b => b.status === 'aktif' || b.status === 'panen').reduce((s, b) => s + b.jumlah, 0);
-  const mati = db.baglog.filter(b => b.status === 'habis' || b.status === 'kontaminasi').reduce((s, b) => s + b.jumlah, 0);
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statAktif').textContent = aktif;
-  document.getElementById('statMati').textContent = mati;
-  document.getElementById('kpiBaglog').innerHTML = `${aktif} <span class="kpi-unit">buah</span>`;
-}
-
-function renderPanen() {
-  const listEl = document.getElementById('panenList');
-  if (db.panen.length === 0) {
-    listEl.innerHTML = '<div class="empty"><div class="empty-icon">🌾</div><div class="empty-text">Belum ada catatan panen.</div></div>';
-  } else {
-    listEl.innerHTML = db.panen.map(p => `
-      <div class="log-item">
-        <div class="log-dot harvest"></div>
-        <div class="log-content">
-          <div class="log-title">${fmtDate(p.tgl)} · <span style="color:var(--p)">${p.pembeli}</span></div>
-          <div class="log-meta">${fmtRp(p.harga)}/kg · ${p.catatan || 'Tidak ada catatan'}</div>
-        </div>
-        <div class="log-amount">${p.berat} kg</div>
-      </div>`).join('');
-  }
-
-  const total = db.panen.reduce((s, p) => s + p.berat, 0);
-  const avg = db.panen.length ? (total / db.panen.length).toFixed(1) : 0;
-  const max = db.panen.length ? Math.max(...db.panen.map(p => p.berat)) : 0;
-  document.getElementById('ps-total').textContent = total.toFixed(1);
-  document.getElementById('ps-avg').textContent = avg;
-  document.getElementById('ps-max').textContent = max.toFixed(1);
-  document.getElementById('ps-count').textContent = db.panen.length;
-}
-
-function renderKondisiDisplay(kond, sid, lid, sirid, ssts, lsts, sirsts) {
-  if (!kond) return;
-  document.getElementById(sid).textContent = kond.suhu;
-  document.getElementById(lid).textContent = kond.lembab;
-  document.getElementById(sirid).textContent = kond.sir;
-  // Status evaluations
-  const suhuOk = kond.suhu >= 22 && kond.suhu <= 28;
-  const lembabOk = kond.lembab >= 80 && kond.lembab <= 90;
-  const sirOk = kond.sir === 'Baik' || kond.sir === 'Sangat Baik';
-  document.getElementById(ssts).innerHTML = `<span class="${suhuOk ? 'cond-ok' : 'cond-warn'}">${suhuOk ? '✓ Optimal' : '⚠ Periksa'}</span>`;
-  document.getElementById(lsts).innerHTML = `<span class="${lembabOk ? 'cond-ok' : 'cond-warn'}">${lembabOk ? '✓ Optimal' : '⚠ Periksa'}</span>`;
-  document.getElementById(sirsts).innerHTML = `<span class="${sirOk ? 'cond-ok' : 'cond-bad'}">${sirOk ? '✓ Baik' : '✗ Kurang'}</span>`;
-}
-
-function renderKondisi() {
-  const kond = db.kondisi[0];
-  if (kond) {
-    renderKondisiDisplay(kond, 'k-suhu', 'k-lembab', 'k-sir', 'k-suhu-s', 'k-lembab-s', 'k-sir-s');
-    const dt = new Date(kond.tgl);
-    document.getElementById('k-last-update').textContent = 'Diupdate: ' + dt.toLocaleString('id-ID');
-  }
-
-  const logEl = document.getElementById('kondisiLog');
-  if (db.kondisi.length === 0) {
-    logEl.innerHTML = '<div class="empty"><div class="empty-icon">🌡️</div><div class="empty-text">Belum ada catatan kondisi.</div></div>';
-  } else {
-    logEl.innerHTML = db.kondisi.map(k => `
-      <div class="log-item">
-        <div class="log-dot note"></div>
-        <div class="log-content">
-          <div class="log-title">🌡️ ${k.suhu}°C &nbsp;💧 ${k.lembab}% &nbsp;💨 ${k.sir}</div>
-          <div class="log-meta">${fmtDate(k.tgl)} · Siram: ${k.siram}${k.cat ? ' · ' + k.cat : ''}</div>
-        </div>
-      </div>`).join('');
-  }
-}
-
-function renderKeuangan() {
-  const totalIncome = db.panen.reduce((s, p) => s + p.pendapatan, 0);
-  const totalExpense = db.biaya.reduce((s, b) => s + b.jml, 0);
-  const profit = totalIncome - totalExpense;
-  const margin = totalIncome > 0 ? ((profit / totalIncome) * 100).toFixed(1) : 0;
-  const avgHarga = db.panen.length ? (db.panen.reduce((s, p) => s + p.harga, 0) / db.panen.length).toFixed(0) : 0;
-
-  document.getElementById('fin-income').textContent = fmtRp(totalIncome);
-  document.getElementById('fin-expense').textContent = fmtRp(totalExpense);
-  document.getElementById('fin-profit').textContent = fmtRp(profit);
-  document.getElementById('fin-profit').style.color = profit >= 0 ? 'var(--g)' : 'var(--r)';
-  document.getElementById('fin-margin').textContent = `Margin: ${margin}%`;
-  document.getElementById('fin-price').textContent = fmtRp(avgHarga);
-
-  const biayaEl = document.getElementById('biayaList');
-  if (db.biaya.length === 0) {
-    biayaEl.innerHTML = '<div class="empty"><div class="empty-icon">💸</div><div class="empty-text">Belum ada catatan pengeluaran.</div></div>';
-  } else {
-    biayaEl.innerHTML = db.biaya.map(b => `
-      <div class="log-item">
-        <div class="log-dot alert"></div>
-        <div class="log-content">
-          <div class="log-title">${b.kat} · ${b.ket || 'Tanpa keterangan'}</div>
-          <div class="log-meta">${fmtDate(b.tgl)}</div>
-        </div>
-        <div class="log-amount" style="color:var(--r);font-size:16px;">${fmtRp(b.jml)}</div>
-      </div>`).join('');
-  }
-
-  chartProfit.data.datasets[0].data = [totalIncome, totalExpense, Math.max(0, profit)];
-  chartProfit.update();
-}
-
-function renderAll() {
-  renderDashboard();
-  renderBaglog();
-  renderPanen();
-  renderKondisi();
-  renderKeuangan();
-}
-
-// ======== NAVIGATION ========
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll('.bnav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => {
-    if (n.getAttribute('onclick')?.includes(id)) n.classList.add('active');
+  // CHARTS
+  const sorted=[...db.panen].sort((a,b)=>new Date(a.tgl)-new Date(b.tgl));
+  [cPanen,cPanen2].forEach(c=>{
+    c.data.labels=sorted.map(p=>fmtDate(p.tgl));
+    c.data.datasets[0].data=sorted.map(p=>p.berat);
+    c.update();
   });
-  document.querySelectorAll('.bnav-item').forEach(n => {
-    if (n.getAttribute('onclick')?.includes(id)) n.classList.add('active');
-  });
-  window.scrollTo(0, 0);
+  const inc=totIncome,exp=totExpense,pro=Math.max(0,profit);
+  [cProfit,cProfit2].forEach(c=>{c.data.datasets[0].data=[inc,exp,pro];c.update();});
 }
 
-// ======== DATE ========
-function updateDate() {
-  const now = new Date();
-  const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-  const str = now.toLocaleDateString('id-ID', opts);
-  document.getElementById('sidebarDate').textContent = str;
-  document.getElementById('dashDate').textContent = str;
+function getBatchName(id){const b=db.baglog.find(x=>x.id==id);return b?b.nama:'—';}
+
+function renderBaglog(){
+  const smap={inkubasi:['badge-blue','Inkubasi'],aktif:['badge-green','Aktif'],panen:['badge-gold','Siap Panen'],habis:['badge-gray','Habis'],kontaminasi:['badge-red','Kontaminasi']};
+  const tbody=document.getElementById('baglogBody');
+  if(db.baglog.length===0){tbody.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🪵</div><div class="empty-text">Belum ada baglog.</div></div></td></tr>';return;}
+  tbody.innerHTML=db.baglog.map(b=>{
+    const[cls,lbl]=smap[b.status]||['badge-gray',b.status];
+    const phCount=db.pinhead.filter(p=>p.baglogId==b.id).length;
+    const panenTotal=db.panen.filter(p=>p.batchId==b.id).reduce((s,p)=>s+p.berat,0);
+    return`<tr>
+      <td><strong>${b.nama}</strong></td>
+      <td>${fmtDate(b.tgl)}</td>
+      <td><strong>${b.jml}</strong> buah</td>
+      <td><span class="badge ${cls}">${lbl}</span></td>
+      <td>${phCount>0?`<span class="badge badge-amber">${phCount} log</span>`:'<span style="color:var(--muted2);font-size:12px;">Belum ada</span>'}</td>
+      <td>${panenTotal>0?`<strong>${panenTotal.toFixed(1)}</strong> kg`:'<span style="color:var(--muted2);font-size:12px;">Belum panen</span>'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="delBaglog(${b.id})">Hapus</button></td>
+    </tr>`;
+  }).join('');
+
+  const total=db.baglog.reduce((s,b)=>s+b.jml,0);
+  const aktif=db.baglog.filter(b=>b.status==='aktif'||b.status==='panen').reduce((s,b)=>s+b.jml,0);
+  const mati=db.baglog.filter(b=>b.status==='habis'||b.status==='kontaminasi').reduce((s,b)=>s+b.jml,0);
+  document.getElementById('bl-total').innerHTML=`${total} <span class="kpi-unit">buah</span>`;
+  document.getElementById('bl-total-s').textContent=db.baglog.length+' batch';
+  document.getElementById('bl-aktif').innerHTML=`${aktif} <span class="kpi-unit">buah</span>`;
+  document.getElementById('bl-mati').innerHTML=`${mati} <span class="kpi-unit">buah</span>`;
 }
 
-// ======== INIT ========
-document.addEventListener('DOMContentLoaded', () => {
-  updateDate();
-  initCharts();
-  renderAll();
+function renderPinhead(){
+  const total=db.pinhead.length;
+  const ready=db.pinhead.filter(p=>p.status==='aktif'&&daysDiff(p.tgl)>=25).length;
+  const panenTimes=db.panen.filter(p=>p.batchId).map(p=>{
+    const ph=db.pinhead.find(x=>x.baglogId==p.batchId);
+    return ph?daysDiff(ph.tgl):null;
+  }).filter(x=>x!==null);
+  const avg=panenTimes.length?(panenTimes.reduce((s,v)=>s+v,0)/panenTimes.length).toFixed(0):'—';
+  const latest=db.pinhead[0];
+  document.getElementById('ph-total').innerHTML=`${total} <span class="kpi-unit">log</span>`;
+  document.getElementById('ph-ready').innerHTML=`${ready} <span class="kpi-unit">log</span>`;
+  document.getElementById('ph-avg').innerHTML=`${avg} <span class="kpi-unit">hari</span>`;
 
-  // Animate progress bars on load
-  setTimeout(() => {
-    document.querySelectorAll('.bar-fill').forEach(b => {
-      b.style.width = b.dataset.width + '%';
-    });
-  }, 300);
-});
+  // Baglog aktif yang belum ada pinhead
+  const blAktif=db.baglog.filter(b=>b.status==='aktif'||b.status==='panen');
+  const blBelumPinhead=blAktif.filter(b=>!db.pinhead.find(p=>p.baglogId==b.id));
+  const blistEl=document.getElementById('baglogAktifList');
+  blistEl.innerHTML=blBelumPinhead.length===0
+    ?'<div class="empty" style="padding:24px;"><div class="empty-text">Semua baglog aktif sudah tercatat pinhead-nya ✓</div></div>'
+    :blBelumPinhead.map(b=>`<div class="log-item"><div class="log-dot b" style="margin-top:5px;flex-shrink:0;"></div><div style="flex:1;"><div class="log-title">${b.nama}</div><div class="log-meta">${b.jml} buah · Inokulasi ${fmtDate(b.tgl)}</div></div><button class="btn btn-gold btn-sm" onclick="quickPinhead(${b.id})">+ Catat Pinhead</button></div>`).join('');
+
+  // Grid pinhead
+  const grid=document.getElementById('pinheadGrid');
+  if(db.pinhead.length===0){grid.innerHTML='<div class="empty" style="grid-column:1/-1;"><div class="empty-icon">✦</div><div class="empty-text">Belum ada catatan pinhead.</div></div>';return;}
+  grid.innerHTML=db.pinhead.map(p=>{
+    const d=daysDiff(p.tgl);
+    let cardCls='',dayCls='badge-blue',dayLbl='Tumbuh';
+    if(d>=30){cardCls='mature';dayCls='badge-green';dayLbl='Siap Panen!';}
+    else if(d>=25){cardCls='growing';dayCls='badge-amber';dayLbl='Hampir Siap';}
+    const bName=p.baglogId?getBatchName(p.baglogId):'Manual';
+    return`<div class="ph-card ${cardCls}">
+      <div class="ph-hdr">
+        <div><div class="ph-name">${p.nama}</div><div class="ph-batch">Dari: ${bName} · ${p.jml||'—'} baglog</div></div>
+        <div style="text-align:right;"><div class="ph-days">${d}</div><div class="ph-days-lbl">hari</div></div>
+      </div>
+      <span class="badge ${dayCls}" style="margin-bottom:10px;">${dayLbl}</span>
+      <div class="ph-row"><span class="ph-key">Mulai tumbuh</span><span class="ph-val">${fmtDate(p.tgl)}</span></div>
+      <div class="ph-row"><span class="ph-key">Est. panen</span><span class="ph-val">${fmtDate(p.est)}</span></div>
+      ${p.cat?`<div class="ph-row"><span class="ph-key">Catatan</span><span class="ph-val" style="font-size:11px;max-width:120px;text-align:right;">${p.cat}</span></div>`:''}
+      <div style="margin-top:12px;display:flex;gap:8px;">
+        ${d>=25?`<button class="btn btn-gold btn-sm" onclick="quickPanen(${p.id})">+ Catat Panen</button>`:''}
+        <button class="btn btn-danger btn-sm" onclick="delPinhead(${p.id})">Hapus</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Quick action: langsung catat pinhead dari baglog
+function quickPinhead(baglogId){
+  openModal('modalPinhead');
+  setTimeout(()=>{
+    document.getElementById('ph-baglog-sel').value=baglogId;
+    fillPinheadFromBaglog();
+  },100);
+}
+
+// Quick action: langsung catat panen dari pinhead
+function quickPanen(pinheadId){
+  openModal('modalPanen');
+  setTimeout(()=>{
+    const ph=db.pinhead.find(p=>p.id===pinheadId);
+    if(ph&&ph.baglogId)document.getElementById('pn-batch').value=ph.baglogId;
+  },100);
+}
+
+function renderPanen(){
+  const listEl=document.getElementById('panenList');
+  listEl.innerHTML=db.panen.length===0?'<div class="empty"><div class="empty-icon">🌾</div><div class="empty-text">Belum ada panen.</div></div>':db.panen.map(p=>`
+    <div class="log-item">
+      <div class="log-dot g" style="margin-top:5px;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="log-title">${fmtDate(p.tgl)} · <span style="color:var(--muted);font-weight:400;">${p.jual}</span></div>
+        <div class="log-meta">${fmtRp(p.harga)}/kg${p.batchId?' · Batch: '+getBatchName(p.batchId):''}${p.cat?' · '+p.cat:''}</div>
+      </div>
+      <div class="log-right">
+        <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--green);">${p.berat} kg</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">${fmtRp(p.pendapatan)}</div>
+        <button class="btn btn-danger btn-sm" style="margin-top:4px;" onclick="delPanen(${p.id})">×</button>
+      </div>
+    </div>`).join('');
+
+  const total=db.panen.reduce((s,p)=>s+p.berat,0);
+  const income=db.panen.reduce((s,p)=>s+p.pendapatan,0);
+  const avg=db.panen.length?(total/db.panen.length).toFixed(1):0;
+  const max=db.panen.length?Math.max(...db.panen.map(p=>p.berat)).toFixed(1):0;
+  document.getElementById('ps-total').textContent=total.toFixed(1);
+  document.getElementById('ps-avg').textContent=avg+' kg';
+  document.getElementById('ps-max').textContent=max+' kg';
+  document.getElementById('ps-count').textContent=db.panen.length;
+  document.getElementById('ps-income').textContent=fmtRp(income);
+
+  // PINHEAD REMINDER di halaman panen
+  const ready=db.pinhead.filter(p=>p.status==='aktif'&&daysDiff(p.tgl)>=25);
+  const remEl=document.getElementById('panenReminder');
+  remEl.innerHTML=ready.length>0?`<div class="alert-card alert-gold" style="margin-bottom:20px;">🌿 <strong>${ready.length} log pinhead siap panen</strong>: ${ready.map(p=>p.nama).join(', ')} — segera catat!</div>`:'';
+}
+
+function renderKeuangan(){
+  const income=db.panen.reduce((s,p)=>s+p.pendapatan,0);
+  const expense=db.biaya.reduce((s,b)=>s+b.jml,0);
+  const profit=income-expense;
+  const margin=income>0?((profit/income)*100).toFixed(1):0;
+  const avgHarga=db.panen.length?(db.panen.reduce((s,p)=>s+p.harga,0)/db.panen.length).toFixed(0):0;
+  document.getElementById('fin-inc').textContent=fmtRp(income);
+  document.getElementById('fin-exp').textContent=fmtRp(expense);
+  document.getElementById('fin-pro').textContent=fmtRp(profit);
+  document.getElementById('fin-pro').style.color=profit>=0?'var(--green)':'var(--red)';
+  document.getElementById('fin-mar').textContent=`Margin: ${margin}%`;
+  document.getElementById('fin-harga').textContent=fmtRp(avgHarga);
+
+  // PERFORMA PER BATCH
+  const perfBody=document.getElementById('perfBody');
+  const batchPerf=db.baglog.map(b=>{
+    const panenBatch=db.panen.filter(p=>p.batchId==b.id);
+    const kg=panenBatch.reduce((s,p)=>s+p.berat,0);
+    const inc=panenBatch.reduce((s,p)=>s+p.pendapatan,0);
+    const avg=b.jml>0?(kg/b.jml).toFixed(2):0;
+    return{...b,kg,inc,avg,hasPanen:panenBatch.length>0};
+  }).filter(b=>b.hasPanen||b.status==='aktif'||b.status==='panen');
+  perfBody.innerHTML=batchPerf.length===0?'<tr><td colspan="5"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Catat panen dan hubungkan ke batch untuk lihat performa.</div></div></td></tr>':batchPerf.map(b=>`
+    <tr>
+      <td><strong>${b.nama}</strong></td>
+      <td>${b.jml} buah</td>
+      <td>${b.kg>0?b.kg.toFixed(1)+' kg':'<span style="color:var(--muted2);">Belum panen</span>'}</td>
+      <td>${b.inc>0?fmtRp(b.inc):'<span style="color:var(--muted2);">—</span>'}</td>
+      <td>${b.kg>0?b.avg+' kg/baglog':'<span style="color:var(--muted2);">—</span>'}</td>
+    </tr>`).join('');
+
+  const biayaEl=document.getElementById('biayaList');
+  biayaEl.innerHTML=db.biaya.length===0?'<div class="empty"><div class="empty-icon">💸</div><div class="empty-text">Belum ada pengeluaran.</div></div>':db.biaya.map(b=>`
+    <div class="log-item">
+      <div class="log-dot r" style="margin-top:5px;flex-shrink:0;"></div>
+      <div style="flex:1;"><div class="log-title">${b.kat}${b.ket?' — '+b.ket:''}</div><div class="log-meta">${fmtDate(b.tgl)}</div></div>
+      <div class="log-right"><div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--red);">${fmtRp(b.jml)}</div><button class="btn btn-danger btn-sm" style="margin-top:4px;" onclick="delBiaya(${b.id})">×</button></div>
+    </div>`).join('');
+}
+
+function renderAll(){renderDashboard();renderBaglog();renderPinhead();renderPanen();renderKeuangan();}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item,.bnav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item,.bnav-item').forEach(n=>{if(n.getAttribute('onclick')?.includes(id))n.classList.add('active');});
+  window.scrollTo(0,0);
+}
+
+function updateDate(){
+  const now=new Date();
+  const str=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const el=document.getElementById('sidebarDate');
+  if(el)el.innerHTML=str.replace(',','<br>');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{updateDate();initCharts();renderAll();});
 </script>
 </body>
 </html>
